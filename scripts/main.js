@@ -171,7 +171,7 @@ function cusLoadEdit(moves) {
         if ($(this)[0].id == "unicode") {
             var cur = $(this).val(),
                 res = cur.match(/[0-9A-F]{4,5}/i); //console.log(res);
-            if (res && res[0] == cur) $("#uniprev").html(String.fromCodePoint(parseInt(cur, 16)));
+            if (res && res[0] == cur) $("#uniprev").html(String.fromCodePoint(parseInt(cur, 18)));
         }
     });
     $(".cusmodal #uniprev").click(function() {
@@ -341,11 +341,11 @@ function setMove(level, cell, cls) {
         oid = old === "" ? "" : MOVES[SMOVE[old]].id,
         cid = cls === "" ? "" : MOVES[SMOVE[cls]].id;
     var p = pos(cell);
-    if (old !== "") DATA[level].moves[oid] = DATA[level].moves[oid].replace(new RegExp(p[0].toString(16) + p[1].toString(16) + "(?=(..)*$)", "g"), "");
+    if (old !== "") DATA[level].moves[oid] = DATA[level].moves[oid].replace(new RegExp(p[0].toString(18) + p[1].toString(18) + "(?=(..)*$)", "g"), "");
     if (DATA[level].moves[oid] === "") delete DATA[level].moves[oid];
     count(level, cell);
     cell.className = cls;
-    if (cls !== "") DATA[level].moves[cid] = DATA[level].moves[cid] ? DATA[level].moves[cid] + p[0].toString(16) + p[1].toString(16) : p[0].toString(16) + p[1].toString(16);
+    if (cls !== "") DATA[level].moves[cid] = DATA[level].moves[cid] ? DATA[level].moves[cid] + p[0].toString(18) + p[1].toString(18) : p[0].toString(18) + p[1].toString(18);
     count(level, cell);
 
     // Apply move to subsequent level
@@ -746,7 +746,7 @@ function restoreMoves() {
         var self = this;
         Object.keys(DATA[level].moves).forEach(function (id) {
             var cname = MOVES[IMOVE[id]].name,
-                poses = _.map((DATA[level].moves[id].match(/../g) || []), function (poss) { return parseInt(poss[0], 16) * 15 + parseInt(poss[1], 16); });
+                poses = _.map((DATA[level].moves[id].match(/../g) || []), function (poss) { return parseInt(poss[0], 18) * 15 + parseInt(poss[1], 18); });
             for (var n = 0; n < poses.length; n ++) {
                 poss = poses[n];
                 $(self).find("td")[poss].className = cname;
@@ -790,6 +790,180 @@ function restoreCustom() {
         $(".moves ." + movename).attr("data-description", MOVES[SMOVE[movename]].text);
     }
 }
+function makeSVGTag(tagName, properties) {
+  var keys = Object.keys(properties);
+  var ret = "<" + tagName;
+  for (var i = 0; i < keys.length; i++) {
+    ret += " " + keys[i] + '="' + properties[keys[i]] + '"';
+  }
+  ret += "/>";
+  return ret;
+}
 
+function makeSVGTagContent(tagName, properties, content) {
+  var keys = Object.keys(properties);
+  var ret = "<" + tagName;
+  for (var i = 0; i < keys.length; i++) {
+    ret += " " + keys[i] + '="' + properties[keys[i]] + '"';
+  }
+  ret += ">" + content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</" + tagName + ">";
+  return ret;
+}
+
+function setMoveOnBoard(color1, color2, color3, color4, symbol1, symbol2, i) {
+  var x = mysvg.children[i].getAttribute("x");
+  var y = mysvg.children[i].getAttribute("y");
+  mysvg.insertAdjacentHTML('beforeend', makeSVGTag("rect", {
+    height: 10,
+    width: 10,
+    stroke: color2,
+    "stroke-width": 2,
+    x: Number(x) + 3,
+    y: Number(y) + 3,
+    fill: color1,
+    class: "move move-display",
+    "data-index": i,
+    onmousedown: 'tileClick(' + i + ')',
+    onmouseover: 'tileDrag(' + i + ')'
+  }));
+  mysvg.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+    x: Number(x) + 4,
+    y: Number(y) + 12,
+    "font-family": "monospac",
+    "font-size": 17,
+    stroke: "none",
+    fill: color3,
+    class: "move-symbol move-symbol1 move-display",
+    "data-index": i,
+    onmousedown: 'tileClick(' + i + ')',
+    onmouseover: 'tileDrag(' + i + ')'
+  }, symbol1));
+  mysvg.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+    x: Number(x) + 4,
+    y: Number(y) + 12,
+    "font-family": "monospac",
+    "font-size": 17,
+    stroke: "none",
+    fill: color4,
+    class: "move-symbol move-symbol2 move-display",
+    "data-index": i,
+    onmousedown: 'tileClick(' + i + ')',
+    onmouseover: 'tileDrag(' + i + ')'
+  }, symbol2));
+}
+var config = {
+  color1: "#f00",
+  color2: "#000",
+  color3: "#0f0",
+  color4: "#00f",
+  symbol1: "x",
+  symbol2: "y"
+};
+var mode = "add";
+
+function toggleMove(i) {
+  if (getMove(i)[0]) {
+    mode = "remove";
+    if (typeof getMove(i)[0].remove == "function") {
+      getMove(i)[0].remove();
+    }
+    if (typeof getMove(i)[1].remove == "function") {
+      getMove(i)[1].remove();
+    }
+    if (typeof getMove(i)[2].remove == "function") {
+      getMove(i)[2].remove();
+    }
+  } else {
+    mode = "add";
+    setMoveOnBoard(config.color1, config.color2, config.color3, config.color4, config.symbol1, config.symbol2, i);
+  }
+}
+
+function changeMove(i) {
+  if (mode == "add") {
+    setMoveOnBoard(config.color1, config.color2, config.color3, config.color4, config.symbol1, config.symbol2, i);
+  } else {
+    if (typeof getMove(i)[0].remove == "function") {
+      getMove(i)[0].remove();
+    }
+    if (typeof getMove(i)[1].remove == "function") {
+      getMove(i)[1].remove();
+    }
+    if (typeof getMove(i)[2].remove == "function") {
+      getMove(i)[2].remove();
+    }
+  }
+}
+var mouseDown = false;
+document.body.addEventListener("mouseup", function() {
+  mouseDown = false;
+  mode = "add";
+});
+document.body.addEventListener("dragend", function() {
+  mouseDown = false;
+  mode = "add";
+});
+
+function getMove(index) {
+  var ret = [, , ];
+  var moveList = mysvg.getElementsByClassName("move");
+  for (var i = 0; i < moveList.length; i++) {
+    if (moveList[i].getAttribute("data-index") == index) {
+      ret[0] = moveList[i];
+    }
+  }
+  moveList = mysvg.getElementsByClassName("move-symbol1");
+  for (var i = 0; i < moveList.length; i++) {
+    if (moveList[i].getAttribute("data-index") == index) {
+      ret[1] = moveList[i];
+    }
+  }
+  moveList = mysvg.getElementsByClassName("move-symbol2");
+  for (var i = 0; i < moveList.length; i++) {
+    if (moveList[i].getAttribute("data-index") == index) {
+      ret[2] = moveList[i];
+    }
+  }
+  return ret;
+}
+
+function tileClick(i) {
+  mouseDown = true;
+  if (i != 112) {
+    toggleMove(i);
+  }
+}
+
+function tileDrag(i) {
+  if (mouseDown && i != 112) {
+    changeMove(i);
+  }
+}
+window.tileClick = tileClick;
+window.tileDrag = tileDrag;
+for (var i = 0; i < 225; i++) {
+  mysvg.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
+    height: 18,
+    width: 18,
+    stroke: "#444",
+    "stroke-width": 1,
+    x: (i % 15) * 17 + 2,
+    y: Math.floor(i / 15) * 17 + 2,
+    fill: i % 2 ? "#ccc" : "#eee",
+    onmousedown: 'tileClick(' + i + ')',
+    onmouseover: 'tileDrag(' + i + ')',
+    class: "tile",
+    "data-index": i,
+    "stroke-dasharray": "18, 36",
+    "shape-rendering": "crispEdges"
+  }));
+}
+mysvg.insertAdjacentHTML("beforeend", makeSVGTag("circle", {
+  cx: mysvg.getAttribute("width") / 2,
+  cy: mysvg.getAttribute("height") / 2,
+  r: 6,
+  class: "piece",
+  "data-index": 112
+}));
 if ($("#code").val()) validate($("#code").val());
 //Placed at the final so that everything loads properly before stuffs are loaded.;
