@@ -144,11 +144,12 @@ mysvg.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
   fill: "transparent",
   draggable: false,
   class: "ignore-mouse",
+  "shape-rendering": "crispEdges"
 }));
 
 mysvg.insertAdjacentHTML("beforeend", makeSVGTag("circle", {
-  cx: mysvg.getAttribute("width") / 2,
-  cy: mysvg.getAttribute("height") / 2,
+  cx: mysvg.getAttribute("width") / 2 - 1,
+  cy: mysvg.getAttribute("height") / 2 + 1,
   r: 6,
   class: "piece",
   "data-index": 112
