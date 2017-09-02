@@ -508,3 +508,9 @@ text {
   -ms-user-select: none;
   user-select: none;
 }
+.tile {
+  pointer-events: visibleFill;
+}
+.ignore-mouse, .spell-display {
+  pointer-events: none;
+}
