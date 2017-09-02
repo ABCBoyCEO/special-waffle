@@ -400,7 +400,10 @@ function Mark(el) {
     $(el).addClass("mark");
 }
 
-var mouse = {};
+var mouse = {
+    down: -1,
+    mode: "add"
+  };
 var moose = { click: 0 };
 var COLOR = ACTION;
 $("td.piece").mousedown(function() {
@@ -429,15 +432,6 @@ $("td").mouseover(function() {
         } while ((v.x -= s.x) | (v.y -= s.y));
     } else if (mouse.down == level(this))
         setMove(level(this), this, COLOR);
-});
-$("td").mousedown(function(e) {
-    COLOR = ACTION;
-    e.preventDefault();
-    if (this.className == "piece") return false;
-    if (this.className == ACTION || e.which == 3) COLOR = "";
-    dirty();
-    setMove(level(this), this, COLOR);
-    mouse.down = level(this); //Drag Mode
 });
 
 $("td").mouseup(function() {
