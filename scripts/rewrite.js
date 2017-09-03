@@ -25,8 +25,14 @@ function makeSVGTagContent(tagName, properties, content) {
 function setSpellOnBoard(i) {
   var x = mysvg.children[i].getAttribute("x");
   var y = mysvg.children[i].getAttribute("y");
+  mysvg.insertAdjacentHTML('beforeend', makeSVGTag("g", {
+    class: "spell-display",
+    "data-index": i,
+    "data-id": config.id
+  }));
+  var gTag = mysvg.lastElementChild;
   if (config.color1 && config.color2) {
-    mysvg.insertAdjacentHTML('beforeend', makeSVGTag("rect", {
+    gTag.insertAdjacentHTML('beforeend', makeSVGTag("rect", {
       height: 10,
       width: 10,
       stroke: config.color1,
@@ -34,113 +40,88 @@ function setSpellOnBoard(i) {
       x: Number(x) + 4,
       y: Number(y) + 4,
       fill: config.color2,
-      class: "spell spell-display",
+      class: "spell",
       "data-index": i,
       "data-id": config.id
-      //onmousedown: 'tileClick(' + i + ')',
-      //onmouseover: 'tileDrag(' + i + ')'
     }));
   }
   if (config.color3 && config.symbol1) {
-    mysvg.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+    gTag.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
       x: Number(x) + 5,
       y: Number(y) + 15,
       "font-family": "monospac",
       "font-size": 17,
       stroke: "none",
       fill: config.color3,
-      class: "spell-symbol spell-symbol1 spell-display",
+      class: "spell-symbol spell-symbol1",
       "data-index": i,
       "data-id": config.id
-      //onmousedown: 'tileClick(' + i + ')',
-      //onmouseover: 'tileDrag(' + i + ')'
     }, config.symbol1));
   }
   if (config.color4 && config.symbol2) {
-    mysvg.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+    gTag.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
       x: Number(x) + 5,
       y: Number(y) + 15,
       "font-family": "monospac",
       "font-size": 17,
       stroke: "none",
       fill: config.color4,
-      class: "spell-symbol spell-symbol2 spell-display",
+      class: "spell-symbol spell-symbol2",
       "data-index": i,
       "data-id": config.id
-      //onmousedown: 'tileClick(' + i + ')',
-      //onmouseover: 'tileDrag(' + i + ')'
     }, config.symbol2));
   }
 }
 
-function changeMove(i, l) {
-  if (mouse.mode == "add") {
-    for (var ext = l; ext < 4; ext ++) {
-    	updateSVG(ext);
-    	if (getMove(i)[0] && typeof getMove(i)[0].remove == "function") {
-        getMove(i)[0].remove();
-      }
-      if (getMove(i)[1] && typeof getMove(i)[1].remove == "function") {
-        getMove(i)[1].remove();
-      }
-      if (getMove(i)[2] && typeof getMove(i)[2].remove == "function") {
-        getMove(i)[2].remove();
-      }
-    	setSpellOnBoard(i);
-    	var levMoves = DATA[LEVELS[ext]].moves;
-    	if (! levMoves[config.id]) {
-    	  levMoves[config.id] = "";
-    	}
-    	levMoves[config.id] += Math.floor(i / 15).toString(16) + (i % 15).toString(16);
-    	var obkeys = Object.keys(levMoves);
-    	for (var i = 0; i < obkeys.length; i ++) {
-    	  if (levMoves[obkeys[i]].length > 0) {
-    	    console.log(LEVELS[ext], config.name);
-    	    setDisplay(LEVELS[ext], config.name);
-    	  }
-    	}
+function changeSpell(i, l) {
+  var curMove = getSpell(i);
+  var levMoves = DATA[LEVELS[l]].moves;
+  var indexStr = i.toString(15);
+
+  // Delete curMove
+  if (curMove.dataset) {
+    var id = curMove.dataset.id;
+
+    // If painting over the same spell, skip everything.
+    if (mouse.mode == "add" && id == config.id) return; 
+
+    // Assuming levMoves[id] exists. If it doesn't, this section shouldn't run to begin with.
+    levMoves[id] = levMoves[id].replace(new RegExp(i + "(?=(..)*$)", "g"), "");
+    if (levMoves[id] == "") {
+      delete levMoves[id];
+      removeDisplay(LEVELS[l], MOVES[IMOVE[id]].name);
     }
-  } else if (getMove(i)[0] || getMove(i)[1] || getMove(i)[2]) {
-  	for (var ext = l; ext < 4; ext ++) {
-  	  updateSVG(ext);
-      if (getMove(i)[0] && typeof getMove(i)[0].remove == "function") {
-        getMove(i)[0].remove();
-      }
-      if (getMove(i)[1] && typeof getMove(i)[1].remove == "function") {
-        getMove(i)[1].remove();
-      }
-      if (getMove(i)[2] && typeof getMove(i)[2].remove == "function") {
-        getMove(i)[2].remove();
-      }
-  	}
+    curMove.remove();
   }
+
+  if (mouse.mode == "add") {
+    setSpellOnBoard(i);
+    // Check and add display
+    levMoves[config.id] = levMoves[config.id] || "";
+    levMoves[config.id] += i.toString(15);
+    setDisplay(LEVELS[l], MOVES[IMOVE[config.id]].name);
+  }
+
+  if (l == 3) return;
+  // Peek nextMove
+  updateSVG(+l+1);
+  var nextMove = getSpell(i);
+  if (! curMove.dataset && ! nextMove.dataset ) changeSpell(i, +l+1);
+  else if (curMove.dataset.id == nextMove.dataset.id) changeSpell(i, +l+1);
 }
 
-function getMove(index) {
-  var ret = [,,,];
-  var moveList = mysvg.getElementsByClassName("spell");
-  for (var i = 0; i < moveList.length; i++) {
-    if (moveList[i].getAttribute("data-index") == index) {
-      ret[0] = moveList[i];
+function getSpell(index) {
+  var ret = {};
+  var moveGrid = mysvg.getElementsByClassName("spell-display");
+  for (var i = 0; i < moveGrid.length; i++) {
+    if (moveGrid[i].getAttribute("data-index") == index) {
+      ret = moveGrid[i];
     }
   }
-  moveList = mysvg.getElementsByClassName("spell-symbol1");
-  for (var i = 0; i < moveList.length; i++) {
-    if (moveList[i].getAttribute("data-index") == index) {
-      ret[1] = moveList[i];
-    }
-  }
-  moveList = mysvg.getElementsByClassName("spell-symbol2");
-  for (var i = 0; i < moveList.length; i++) {
-    if (moveList[i].getAttribute("data-index") == index) {
-      ret[2] = moveList[i];
-    }
-  }
+
   return ret;
 }
 
-//window.tileClick = tileClick;
-//window.tileDrag = tileDrag;
 for (var ext = 0; ext < 4; ext ++) {
   updateSVG(ext);
   for (var i = 0; i < 225; i++) {
@@ -152,8 +133,6 @@ for (var ext = 0; ext < 4; ext ++) {
       x: (i % 15) * 17 + 1,
       y: Math.floor(i / 15) * 17 + 1,
       fill: i % 2 ? "#ccc" : "#eee",
-      //onmousedown: 'tileClick(' + i + ')',
-      //onmouseover: 'tileDrag(' + i + ')',
       class: "tile",
       "data-index": i,
       "data-level": ext,
@@ -187,29 +166,23 @@ for (var ext = 0; ext < 4; ext ++) {
 $(".tile").on("mousedown", function (e) {
   e.preventDefault();
   updateSVG(this.dataset.level);
+
   if (this.dataset.index == 112) return;
-  var curMove = getMove(this.dataset.index);
-  if (curMove[0] || curMove[1] || curMove[2]) {
-    if (curMove[0] && curMove[0].dataset.id == config.id) {
-      mouse.mode = "remove";
-    }
-    if (curMove[1] && curMove[1].dataset.id == config.id) {
-      mouse.mode = "remove";
-    }
-    if (curMove[2] && curMove[2].dataset.id == config.id) {
-      mouse.mode = "remove";
-    }
-  }
+
+  var curMove = getSpell(this.dataset.index);
+  if (curMove.dataset && curMove.dataset.id == config.id) mouse.mode = "remove";
+
   mouse.down = this.dataset.level;
-  changeMove(this.dataset.index, this.dataset.level);
+  changeSpell(this.dataset.index, this.dataset.level);
 });
 
 $(".tile").on("mouseover", function (e) {
   e.preventDefault();
   updateSVG(this.dataset.level);
+
   if (mouse.down != this.dataset.level) return;
   if (this.dataset.index == 112) return;
-  changeMove(this.dataset.index, this.dataset.level);
+  changeSpell(this.dataset.index, this.dataset.level);
 });
 
 $(".tile").on("contextmenu", function () {

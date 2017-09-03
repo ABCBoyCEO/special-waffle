@@ -22,21 +22,6 @@ if (window.location.search && URLSearchParams) {
     }
 }
 
-var SMOVE = {},
-    SLEVEL = [],
-    IMOVE = [];
-// Reversing them helps prevent forEach f***ing up
-
-// Allow lookup by name of #
-_.forEach(MOVES, function(m, ix) {
-    SMOVE[m.name] = ix;
-    IMOVE[m.id] = ix;
-});
-// We should get one for LEVELS too, indexOf 2expensiveplznerf
-_.forEach(LEVELS, function(m, ix) {
-    SLEVEL[m] = ix;
-});
-
 // Create stylesheet element
 var style = document.createElement("style");
 $("#style").append(style);
@@ -44,22 +29,28 @@ $("#style").append(style);
 if (!(CSS && CSS.escape)) var CSS = { escape: a => a.replace(/"/g, "\\\"") };
 
 function createColors(m) {
-   var tintColor = [];
-   for (var n = 0; n < 3; n ++) {
-      tintColor[n] = Math.floor((255 - (m.color || [0, 0, 0])[n]) / 2 + (m.color || [0, 0, 0])[n]);
-   }
-   return [m.color || [0, 0, 0], m.color2 || tintColor || [255, 255, 255], m.color3 || m.color || [0, 0, 0], m.color4 || m.color3 || m.color || [0, 0, 0]];
+    var tintColor = [];
+    for (var n = 0; n < 3; n ++) {
+        tintColor[n] = Math.floor((255 - (m.color || [0, 0, 0])[n]) / 2 + (m.color || [0, 0, 0])[n]);
+    }
+    return ([
+        m.color || [0, 0, 0],
+        m.color2 || tintColor || [255, 255, 255],
+        m.color3 || m.color || [0, 0, 0],
+        m.color4 || m.color3 || m.color || [0, 0, 0]
+    ]);
 }
 
 //makeRule function: i think it's useful
 function makeRule(m) {
     var rule = ".", usedColors = createColors(m);
+    var merge = (m.symbol1 || "") + (m.symbol2 || "");
     rule += m.name;
     rule += "::before{";
     rule += "border:2px solid rgb(" + usedColors[0] + ");";
     rule += "background:rgb(" + usedColors[1] + ");";
     rule += "color:rgb(" + usedColors[2] + ");";
-    rule += "content:\"" + (m.content ? CSS.escape(m.content) : "") + "\";";
+    rule += "content:\"" + (merge ? CSS.escape(merge) : "") + "\";";
     rule += "}";
     return rule;
 }
@@ -102,11 +93,11 @@ function loadMove(move, noShow) {
   }
   if (!noShow.symbol1) {
     config.color3 = "rgb(" + createColors(move)[2].join(",") + ")";
-    config.symbol1 = move.content ? move.content[0] : null;
+    config.symbol1 = move.symbol1 ? move.symbol1 : null;
   }
   if (!noShow.symbol2) {
     config.color4 = "rgb(" + createColors(move)[3].join(",") + ")";
-    config.symbol2 = move.content ? move.content[1] : null;
+    config.symbol2 = move.symbol2 ? move.symbol2 : null;
   }
 }
 
