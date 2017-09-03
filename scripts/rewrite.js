@@ -29,11 +29,11 @@ function setSpellOnBoard(color1, color2, color3, color4, symbol1, symbol2, i) {
     mysvg.insertAdjacentHTML('beforeend', makeSVGTag("rect", {
       height: 10,
       width: 10,
-      stroke: color2,
+      stroke: color1,
       "stroke-width": 2,
       x: Number(x) + 4,
       y: Number(y) + 4,
-      fill: color1,
+      fill: color2,
       class: "spell spell-display",
       "data-index": i,
       //onmousedown: 'tileClick(' + i + ')',
