@@ -331,9 +331,12 @@ div.passives{
   line-height: 16px;
   white-space: pre-wrap;
 }
- .screen.passives::after, div.passives, div.passives:focus::after{
+.screen.passives::after, div.passives, div.passives:focus::after{
   font-size:0;
   line-height:0;
+}
+div.passives:focus::after{
+  display:none;
 }
 #action li::after {
   padding: 2px;
