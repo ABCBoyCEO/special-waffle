@@ -88,11 +88,32 @@ $("#shactive").click(function() {
 
 // Current tool
 var ACTION;
+var config = {};
+
+function loadMove(move, noShow) {
+  if (!noShow) {
+    noShow = {};
+  }
+  config.id = move.id;
+  if (!noShow.tile) {
+    config.color1 = "rgb(" + createColors(move)[0].join(",") + ")";
+    config.color2 = "rgb(" + createColors(move)[1].join(",") + ")";
+  }
+  if (!noShow.symbol1) {
+    config.color3 = "rgb(" + createColors(move)[2].join(",") + ")";
+    config.symbol1 = move.content ? move.content[0] : null;
+  }
+  if (!noShow.symbol2) {
+    config.color4 = "rgb(" + createColors(move)[3].join(",") + ")";
+    config.symbol2 = move.content ? move.content[1] : null;
+  }
+}
 
 function setAction(action) {
     $("#action ." + ACTION).removeClass("active");
     $("#action ." + action).addClass("active");
     ACTION = action;
+    loadMove(MOVES[SMOVE[action]]);
 }
 $("#action li").click(function() {
     if (ACTION == this.classList[0]) return;
