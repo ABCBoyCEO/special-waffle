@@ -95,6 +95,7 @@ function loadMove(move, noShow) {
     noShow = {};
   }
   config.id = move.id;
+  config.name = move.name;
   if (!noShow.tile) {
     config.color1 = "rgb(" + createColors(move)[0].join(",") + ")";
     config.color2 = "rgb(" + createColors(move)[1].join(",") + ")";
@@ -297,6 +298,7 @@ $("div.passives").keyup(function() {
 
 function parseText(text, i) {
     i = SLEVEL[i];
+    text = text.replace(/<(br|div)>/g, "\n").replace(/<\/div>/g, "");
     text = text.replace(/\[\+\]/g, "+".repeat(i));
     text = text.replace(/(\-?\d+)\[(\+\d+|\-\d+)\]/g, function(a, b, c) { return Number(b) + Number(c) * i; });
     text = text.replace(/&gt;/g, ">").replace(/&lt;/g, "<");
@@ -304,7 +306,8 @@ function parseText(text, i) {
 }
 
 function cleanseText(text) { //To remove dumb Chrome rules on linebreaking and then some
-    text = text.replace(/<div><br><\/div>/g, "\n").replace("<div>","").replace(/<(br|div)>/g, "\n").replace(/<\/div>/g, "");
+    text = text.replace(/<div><br><\/div>/g, "\n").replace(/<(br|div)>/g, "\n").replace(/<\/div>/g, "");
+    //rip readability, blame chrome. if this happens again, I'm gonna use the "Switch to Firefox" card.
     return text;
 }
 

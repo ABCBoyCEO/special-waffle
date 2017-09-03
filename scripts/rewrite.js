@@ -22,65 +22,56 @@ function makeSVGTagContent(tagName, properties, content) {
   return ret;
 }
 
-function setSpellOnBoard(color1, color2, color3, color4, symbol1, symbol2, id, i) {
+function setSpellOnBoard(i) {
   var x = mysvg.children[i].getAttribute("x");
   var y = mysvg.children[i].getAttribute("y");
-  if (color1 && color2) {
+  if (config.color1 && config.color2) {
     mysvg.insertAdjacentHTML('beforeend', makeSVGTag("rect", {
       height: 10,
       width: 10,
-      stroke: color1,
+      stroke: config.color1,
       "stroke-width": 2,
       x: Number(x) + 4,
       y: Number(y) + 4,
-      fill: color2,
+      fill: config.color2,
       class: "spell spell-display",
       "data-index": i,
-      "data-id": id
+      "data-id": config.id
       //onmousedown: 'tileClick(' + i + ')',
       //onmouseover: 'tileDrag(' + i + ')'
     }));
   }
-  if (color3 && symbol1) {
+  if (config.color3 && config.symbol1) {
     mysvg.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
       x: Number(x) + 5,
       y: Number(y) + 15,
       "font-family": "monospac",
       "font-size": 17,
       stroke: "none",
-      fill: color3,
+      fill: config.color3,
       class: "spell-symbol spell-symbol1 spell-display",
       "data-index": i,
-      "data-id": id
+      "data-id": config.id
       //onmousedown: 'tileClick(' + i + ')',
       //onmouseover: 'tileDrag(' + i + ')'
-    }, symbol1));
+    }, config.symbol1));
   }
-  if (color4 && symbol2) {
+  if (config.color4 && config.symbol2) {
     mysvg.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
       x: Number(x) + 5,
       y: Number(y) + 15,
       "font-family": "monospac",
       "font-size": 17,
       stroke: "none",
-      fill: color4,
+      fill: config.color4,
       class: "spell-symbol spell-symbol2 spell-display",
       "data-index": i,
-      "data-id": id
+      "data-id": config.id
       //onmousedown: 'tileClick(' + i + ')',
       //onmouseover: 'tileDrag(' + i + ')'
-    }, symbol2));
+    }, config.symbol2));
   }
 }
-var config = {
-  color1: "rgb(0, 0 , 0)",
-  color2: "rgb(127, 127, 127)",
-  color3: "rgb(0, 0 , 0)",
-  color4: "rgb(0, 0 , 0)",
-  symbol1: "",
-  symbol2: "",
-  id: 1
-};
 
 function changeMove(i, l) {
   if (mouse.mode == "add") {
@@ -95,9 +86,19 @@ function changeMove(i, l) {
       if (getMove(i)[2] && typeof getMove(i)[2].remove == "function") {
         getMove(i)[2].remove();
       }
-    	setSpellOnBoard(config.color1, config.color2, null, null, null, null, config.id, i);
-    	setSpellOnBoard(null, null, config.color3, null, config.symbol1, null, config.id, i);
-    	setSpellOnBoard(null, null, null, config.color4, null, config.symbol2, config.id, i);
+    	setSpellOnBoard(i);
+    	var levMoves = DATA[LEVELS[ext]].moves;
+    	if (! levMoves[config.id]) {
+    	  levMoves[config.id] = "";
+    	}
+    	levMoves[config.id] += Math.floor(i / 15).toString(16) + (i % 15).toString(16);
+    	var obkeys = Object.keys(levMoves);
+    	for (var i = 0; i < obkeys.length; i ++) {
+    	  if (levMoves[obkeys[i]].length > 0) {
+    	    console.log(LEVELS[ext], config.name);
+    	    setDisplay(LEVELS[ext], config.name);
+    	  }
+    	}
     }
   } else if (getMove(i)[0] || getMove(i)[1] || getMove(i)[2]) {
   	for (var ext = l; ext < 4; ext ++) {
@@ -112,25 +113,6 @@ function changeMove(i, l) {
         getMove(i)[2].remove();
       }
   	}
-  }
-}
-
-function loadMove(move, noShow) {
-  if (!noShow) {
-    noShow = {};
-  }
-  config.id = move.id;
-  if (!noShow.tile) {
-    config.color1 = "rgb(" + createColors(move)[0].join(",") + ")";
-    config.color2 = "rgb(" + createColors(move)[1].join(",") + ")";
-  }
-  if (!noShow.symbol1) {
-    config.color3 = "rgb(" + createColors(move)[2].join(",") + ")";
-    config.symbol1 = move.content ? move.content[0] : null;
-  }
-  if (!noShow.symbol2) {
-    config.color4 = "rgb(" + createColors(move)[3].join(",") + ")";
-    config.symbol2 = move.content ? move.content[1] : null;
   }
 }
 
