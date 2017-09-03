@@ -29,11 +29,11 @@ function setSpellOnBoard(color1, color2, color3, color4, symbol1, symbol2, i) {
     mysvg.insertAdjacentHTML('beforeend', makeSVGTag("rect", {
       height: 10,
       width: 10,
-      stroke: color1,
+      stroke: color2,
       "stroke-width": 2,
       x: Number(x) + 4,
       y: Number(y) + 4,
-      fill: color2,
+      fill: color1,
       class: "spell spell-display",
       "data-index": i,
       //onmousedown: 'tileClick(' + i + ')',
@@ -70,8 +70,8 @@ function setSpellOnBoard(color1, color2, color3, color4, symbol1, symbol2, i) {
   }
 }
 var config = {
-  color1: "#000",
-  color2: "#fff",
+  color1: "#fff",
+  color2: "#000",
   color3: "#048",
   color4: "#800",
   symbol1: "\uec61",
@@ -180,7 +180,7 @@ $(".tile").on("mousedown", function (e) {
   e.preventDefault();
   updateSVG(this.dataset.level);
   if (this.dataset.index == 112) return;
-  if (getMove(this.dataset.index)[0] || e.which == 3) mouse.mode = "remove";
+  if (getMove(this.dataset.index)[0] || getMove(this.dataset.index)[1] || getMove(this.dataset.index)[2] || e.which == 3) mouse.mode = "remove";
   mouse.down = this.dataset.level;
   changeMove(this.dataset.index, this.dataset.level);
 });
