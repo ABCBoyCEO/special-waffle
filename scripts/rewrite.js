@@ -22,20 +22,21 @@ function makeSVGTagContent(tagName, properties, content) {
   return ret;
 }
 
-function setSpellOnBoard(color1, color2, color3, color4, symbol1, symbol2, i) {
+function setSpellOnBoard(color1, color2, color3, color4, symbol1, symbol2, id, i) {
   var x = mysvg.children[i].getAttribute("x");
   var y = mysvg.children[i].getAttribute("y");
   if (color1 && color2) {
     mysvg.insertAdjacentHTML('beforeend', makeSVGTag("rect", {
       height: 10,
       width: 10,
-      stroke: color2,
+      stroke: color1,
       "stroke-width": 2,
       x: Number(x) + 4,
       y: Number(y) + 4,
-      fill: color1,
+      fill: color2,
       class: "spell spell-display",
       "data-index": i,
+      "data-id": id
       //onmousedown: 'tileClick(' + i + ')',
       //onmouseover: 'tileDrag(' + i + ')'
     }));
@@ -50,6 +51,7 @@ function setSpellOnBoard(color1, color2, color3, color4, symbol1, symbol2, i) {
       fill: color3,
       class: "spell-symbol spell-symbol1 spell-display",
       "data-index": i,
+      "data-id": id
       //onmousedown: 'tileClick(' + i + ')',
       //onmouseover: 'tileDrag(' + i + ')'
     }, symbol1));
@@ -64,33 +66,38 @@ function setSpellOnBoard(color1, color2, color3, color4, symbol1, symbol2, i) {
       fill: color4,
       class: "spell-symbol spell-symbol2 spell-display",
       "data-index": i,
+      "data-id": id
       //onmousedown: 'tileClick(' + i + ')',
       //onmouseover: 'tileDrag(' + i + ')'
     }, symbol2));
   }
 }
 var config = {
-  color1: "#fff",
-  color2: "#000",
-  color3: "#048",
-  color4: "#800",
-  symbol1: "\uec61",
-  symbol2: "\u00d7"
+  color1: "rgb(0, 0 , 0)",
+  color2: "rgb(127, 127, 127)",
+  color3: "rgb(0, 0 , 0)",
+  color4: "rgb(0, 0 , 0)",
+  symbol1: "",
+  symbol2: "",
+  id: 1
 };
 
 function changeMove(i, l) {
   if (mouse.mode == "add") {
     for (var ext = l; ext < 4; ext ++) {
     	updateSVG(ext);
-    	if (! getMove(i)[0]) {
-    	  setSpellOnBoard(config.color1, config.color2, null, null, null, null, i);
-    	}
-    	if (! getMove(i)[1]) {
-        setSpellOnBoard(null, null, config.color3, null, config.symbol1, null, i);
+    	if (getMove(i)[0] && typeof getMove(i)[0].remove == "function") {
+        getMove(i)[0].remove();
       }
-    	if (! getMove(i)[2]) {
-        setSpellOnBoard(null, null, null, config.color4, null, config.symbol2, i);
+      if (getMove(i)[1] && typeof getMove(i)[1].remove == "function") {
+        getMove(i)[1].remove();
       }
+      if (getMove(i)[2] && typeof getMove(i)[2].remove == "function") {
+        getMove(i)[2].remove();
+      }
+    	setSpellOnBoard(config.color1, config.color2, null, null, null, null, config.id, i);
+    	setSpellOnBoard(null, null, config.color3, null, config.symbol1, null, config.id, i);
+    	setSpellOnBoard(null, null, null, config.color4, null, config.symbol2, config.id, i);
     }
   } else if (getMove(i)[0] || getMove(i)[1] || getMove(i)[2]) {
   	for (var ext = l; ext < 4; ext ++) {
@@ -105,6 +112,25 @@ function changeMove(i, l) {
         getMove(i)[2].remove();
       }
   	}
+  }
+}
+
+function loadMove(move, noShow) {
+  if (!noShow) {
+    noShow = {};
+  }
+  config.id = move.id;
+  if (!noShow.tile) {
+    config.color1 = "rgb(" + createColors(move)[0].join(",") + ")";
+    config.color2 = "rgb(" + createColors(move)[1].join(",") + ")";
+  }
+  if (!noShow.symbol1) {
+    config.color3 = "rgb(" + createColors(move)[2].join(",") + ")";
+    config.symbol1 = move.content ? move.content[0] : null;
+  }
+  if (!noShow.symbol2) {
+    config.color4 = "rgb(" + createColors(move)[3].join(",") + ")";
+    config.symbol2 = move.content ? move.content[1] : null;
   }
 }
 
@@ -180,7 +206,18 @@ $(".tile").on("mousedown", function (e) {
   e.preventDefault();
   updateSVG(this.dataset.level);
   if (this.dataset.index == 112) return;
-  if (getMove(this.dataset.index)[0] || getMove(this.dataset.index)[1] || getMove(this.dataset.index)[2] || e.which == 3) mouse.mode = "remove";
+  var curMove = getMove(this.dataset.index);
+  if (curMove[0] || curMove[1] || curMove[2]) {
+    if (curMove[0] && curMove[0].dataset.id == config.id) {
+      mouse.mode = "remove";
+    }
+    if (curMove[1] && curMove[1].dataset.id == config.id) {
+      mouse.mode = "remove";
+    }
+    if (curMove[2] && curMove[2].dataset.id == config.id) {
+      mouse.mode = "remove";
+    }
+  }
   mouse.down = this.dataset.level;
   changeMove(this.dataset.index, this.dataset.level);
 });
