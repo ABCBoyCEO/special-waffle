@@ -48,7 +48,7 @@ function createColors(m) {
    for (var n = 0; n < 3; n ++) {
       tintColor[n] = Math.floor((255 - (m.color || [0, 0, 0])[n]) / 2 + (m.color || [0, 0, 0])[n]);
    }
-   return [m.color || [0, 0, 0], m.color2 || tintColor || [255, 255, 255], m.color3 || m.color || [0, 0, 0]];
+   return [m.color || [0, 0, 0], m.color2 || tintColor || [255, 255, 255], m.color3 || m.color || [0, 0, 0], m.color4 || m.color3 || m.color || [0, 0, 0]];
 }
 
 //makeRule function: i think it's useful
