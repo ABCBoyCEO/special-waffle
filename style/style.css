@@ -514,6 +514,6 @@ text {
 .tile {
   pointer-events: visibleFill;
 }
-.ignore-mouse, .spell-display {
+.ignore-mouse, .spell-display, circle.piece {
   pointer-events: none;
 }

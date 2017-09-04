@@ -77,7 +77,6 @@ function changeSpell(i, l) {
   var curMove = getSpell(i);
   var levMoves = DATA[LEVELS[l]].moves;
   var indexStr = (+i).toString(15);
-  console.log(indexStr, levMoves)
   // Delete curMove
   if (curMove.dataset) {
     var id = curMove.dataset.id;
@@ -142,16 +141,16 @@ for (var ext = 0; ext < 4; ext ++) {
   }
 	
   mysvg.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
-	height: 256,
-	width: 256,
-	stroke: "#444",
-	"stroke-width": 2,
-	x: 0,
-	y: 0,
-	fill: "transparent",
-	draggable: false,
-	class: "ignore-mouse",
-	"shape-rendering": "crispEdges"
+  	height: 256,
+  	width: 256,
+  	stroke: "#444",
+  	"stroke-width": 2,
+  	x: 0,
+  	y: 0,
+  	fill: "transparent",
+  	draggable: false,
+  	class: "ignore-mouse",
+  	"shape-rendering": "crispEdges"
   }));
 	
   mysvg.insertAdjacentHTML("beforeend", makeSVGTag("circle", {
@@ -187,6 +186,13 @@ $(".tile").on("mouseover", function (e) {
 
 $(".tile").on("contextmenu", function () {
   return false;
+});
+
+$(".tile[data-index=112]").on("dblclick", function (e) {
+  e.preventDefault();
+  for (var l = this.dataset.level; l < 4; l ++) {
+    setDisplay(LEVELS[l], MOVES[IMOVE[config.id]].name);
+  }
 });
 
 $(document).on("mouseup dragend", function () {
