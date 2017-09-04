@@ -76,8 +76,8 @@ function setSpellOnBoard(i) {
 function changeSpell(i, l) {
   var curMove = getSpell(i);
   var levMoves = DATA[LEVELS[l]].moves;
-  var indexStr = i.toString(15);
-
+  var indexStr = (+i).toString(15);
+  console.log(indexStr, levMoves)
   // Delete curMove
   if (curMove.dataset) {
     var id = curMove.dataset.id;
@@ -86,7 +86,7 @@ function changeSpell(i, l) {
     if (mouse.mode == "add" && id == config.id) return; 
 
     // Assuming levMoves[id] exists. If it doesn't, this section shouldn't run to begin with.
-    levMoves[id] = levMoves[id].replace(new RegExp(i + "(?=(..)*$)", "g"), "");
+    levMoves[id] = levMoves[id].replace(new RegExp(indexStr + "(?=(..)*$)", "g"), "");
     if (levMoves[id] == "") {
       delete levMoves[id];
       removeDisplay(LEVELS[l], MOVES[IMOVE[id]].name);
@@ -98,7 +98,7 @@ function changeSpell(i, l) {
     setSpellOnBoard(i);
     // Check and add display
     levMoves[config.id] = levMoves[config.id] || "";
-    levMoves[config.id] += i.toString(15);
+    levMoves[config.id] += indexStr;
     setDisplay(LEVELS[l], MOVES[IMOVE[config.id]].name);
   }
 
