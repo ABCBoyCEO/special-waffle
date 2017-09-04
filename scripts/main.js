@@ -8,9 +8,11 @@ if (window.location.search && URLSearchParams) {
             MOVES.push({
                 "name": "custom" + i,
                 "id": "c" + i,
-                "text": "Custom action " + i + " (Double Click Menu Icon to Edit)",
+                "cat": "custom",
+                "long": "z]",
+                "text": "Custom spell " + i + " (Double Click Menu Icon to Edit)",
                 "color": [108, 108, 25],
-                "content": "0"
+                "symbol1": "0"
             });
             if (i == 32 && i != +qS.get("c")) {
                 alert("Requested number of custom squares too large.\nYou're probably StratShotPlayer\nCutting off at 32.");
@@ -21,6 +23,8 @@ if (window.location.search && URLSearchParams) {
         CUSTOM = i - 1;
     }
 }
+
+makeLookup();
 
 // Create stylesheet element
 var style = document.createElement("style");
@@ -119,27 +123,32 @@ $("#action li.custom").on("dblclick taphold", function() { cusLoadEdit(this.clas
 function cusLoadEdit(moves) {
     //declare every parameter because lolfunctions
 
-    var elm, text, tent, c11, c12, c13, c21, c22, c23, c31, c32, c33, cid = MOVES[SMOVE[moves]].id;
+    var elm, col, tex, sy1, sy2, c11, c12, c13, c21, c22, c23, c31, c32, c33, c41, c42, c43, cid = MOVES[SMOVE[moves]].id;
     //Load every parameters
     cusLoadCustom(moves);
 
     function cusLoadCustom(moves) {
         elm = MOVES[SMOVE[moves]];
-        text = $("#text").val(elm.text);
-        tent = $("#content").val(elm.content);
-        c11 = $("#color11").val(elm.color[0]);
-        c12 = $("#color12").val(elm.color[1]);
-        c13 = $("#color13").val(elm.color[2]);
-        c21 = $("#color21").val(elm.color2 ? elm.color2[0] : Math.floor((255 - elm.color[0]) / 2 + elm.color[0]));
-        c22 = $("#color22").val(elm.color2 ? elm.color2[1] : Math.floor((255 - elm.color[1]) / 2 + elm.color[1]));
-        c23 = $("#color23").val(elm.color2 ? elm.color2[2] : Math.floor((255 - elm.color[2]) / 2 + elm.color[2]));
-        c31 = $("#color31").val(elm.color3 ? elm.color3[0] : elm.color[0]);
-        c32 = $("#color32").val(elm.color3 ? elm.color3[1] : elm.color[1]);
-        c33 = $("#color33").val(elm.color3 ? elm.color3[2] : elm.color[2]);
+        col = createColors(elm);
+        tex = $("#text").val(elm.text);
+        sy1 = $("#symbol1").val(elm.symbol1);
+        sy2 = $("#symbol2").val(elm.symbol2);
+        c11 = $("#color11").val(col[0][0]);
+        c12 = $("#color12").val(col[0][1]);
+        c13 = $("#color13").val(col[0][2]);
+        c21 = $("#color21").val(col[1][0]);
+        c22 = $("#color22").val(col[1][1]);
+        c23 = $("#color23").val(col[1][2]);
+        c31 = $("#color31").val(col[2][0]);
+        c32 = $("#color32").val(col[2][1]);
+        c33 = $("#color33").val(col[2][2]);
+        c41 = $("#color41").val(col[3][0]);
+        c42 = $("#color42").val(col[3][1]);
+        c43 = $("#color43").val(col[3][2]);
         //Update
         $("[type=checkbox]").prop("checked", false); //uncheck boxes
         $(".cusmodal input").prop("disabled", false); //undisable inputs
-        $(".giant").text(tent.val()); //update content
+        $(".giant").text(sy1.val()+sy2.val()); //update content
         $(".giant").css("border-color", "rgb(" + c11.val() + "," + c12.val() + "," + c13.val() + ")"); //update c1
         $(".giant").css("background", "rgb(" + c21.val() + "," + c22.val() + "," + c23.val() + ")"); //update c2
         $(".giant").css("color", "rgb(" + c31.val() + "," + c32.val() + "," + c33.val() + ")"); //update c3
@@ -163,6 +172,10 @@ function cusLoadEdit(moves) {
                 $("#color3" + $(this)[0].id.slice(-1)).val(cur);
                 $("#color3" + $(this)[0].id.slice(-1)).keyup();
             }
+            if ($("#colour4")[0].checked) {
+                $("#color4" + $(this)[0].id.slice(-1)).val(cur);
+                $("#color4" + $(this)[0].id.slice(-1)).keyup();
+            }
         }
         if ($(this)[0].id.startsWith("color2")) {
             $(".giant").css("background", "rgb(" + c21.val() + "," + c22.val() + "," + c23.val() + ")"); //update c2
@@ -170,6 +183,7 @@ function cusLoadEdit(moves) {
         if ($(this)[0].id.startsWith("color3")) {
             $(".giant").css("color", "rgb(" + c31.val() + "," + c32.val() + "," + c33.val() + ")"); //update c3
         }
+        // todo: rewrite all of these into svg
         if ($(this)[0].id.startsWith("colour")) {
             $("[id^=color" + $(this)[0].id.slice(-1) + "]").prop("disabled", !this.checked);
             if (!this.checked) {
@@ -178,36 +192,33 @@ function cusLoadEdit(moves) {
                 this.checked = false;
             }
         }
-        if ($(this)[0].id == "content") {
-            $(".giant").text(tent.val());
+        if ($(this)[0].id.startsWith("symbol")) {
+            if (this.checkValidity()) $(".giant").text(sy1.val()+sy2.val());
         }
         if ($(this)[0].id == "unicode") {
-            var cur = $(this).val(),
-                res = cur.match(/[0-9A-F]{4,5}/i); //console.log(res);
-            if (res && res[0] == cur) $("#uniprev").html(String.fromCodePoint(parseInt(cur, 18)));
+            if (this.checkValidity()) $("#uniprev").val(String.fromCodePoint(parseInt($(this).val(), 16)));
         }
     });
-    $(".cusmodal #uniprev").click(function() {
-        $("#content").val($("#content").val() + $(this).html()).keyup();
-    })
     $(".cusmodal .moves li").click(function() { cusLoadCustom(this.classList[0]); });
     $(".cusmodal #menuclose").one("click", function() {
         var jsn = {
             name: moves,
             id: cid,
-            text: text.val(),
+            text: tex.val(),
             color: [parseInt(c11.val(), 10), parseInt(c12.val(), 10), parseInt(c13.val(), 10)],
             color2: [parseInt(c21.val(), 10), parseInt(c22.val(), 10), parseInt(c23.val(), 10)],
             color3: [parseInt(c31.val(), 10), parseInt(c32.val(), 10), parseInt(c33.val(), 10)],
-            content: tent.val(),
+            color4: [parseInt(c41.val(), 10), parseInt(c42.val(), 10), parseInt(c43.val(), 10)],
+            symbol1: sy1.val(),
+            symbol2: sy2.val(),
         };
         $(".cusmodal input").off("click keyup");
         $(".cusmodal .moves li").off("click"); //prevent overloading
         $(".cusmodal #uniprev").off("click");
         //update everything
-        DATA.custom = DATA.custom || {}; //create custom if it doesn"t exist
+        DATA.custom = DATA.custom || {}; //create custom if it doesn't exist
         DATA.custom[cid] = jsn; //DATAbase for saving
-        MOVES[SMOVE[moves]] = jsn; //I dunno
+        Object.assign(MOVES[SMOVE[moves]], jsn); //I dunno
         style.sheet.deleteRule(SMOVE[moves]);
         style.sheet.insertRule(makeRule(MOVES[SMOVE[moves]]), SMOVE[moves]); //Reapply css
         document.styleSheets[1] = style;
@@ -353,11 +364,11 @@ function setMove(level, cell, cls) {
         oid = old === "" ? "" : MOVES[SMOVE[old]].id,
         cid = cls === "" ? "" : MOVES[SMOVE[cls]].id;
     var p = pos(cell);
-    if (old !== "") DATA[level].moves[oid] = DATA[level].moves[oid].replace(new RegExp(p[0].toString(18) + p[1].toString(18) + "(?=(..)*$)", "g"), "");
+    if (old !== "") DATA[level].moves[oid] = DATA[level].moves[oid].replace(new RegExp(p[0].toString(16) + p[1].toString(16) + "(?=(..)*$)", "g"), "");
     if (DATA[level].moves[oid] === "") delete DATA[level].moves[oid];
     count(level, cell);
     cell.className = cls;
-    if (cls !== "") DATA[level].moves[cid] = DATA[level].moves[cid] ? DATA[level].moves[cid] + p[0].toString(18) + p[1].toString(18) : p[0].toString(18) + p[1].toString(18);
+    if (cls !== "") DATA[level].moves[cid] = DATA[level].moves[cid] ? DATA[level].moves[cid] + p[0].toString(16) + p[1].toString(16) : p[0].toString(16) + p[1].toString(16);
     count(level, cell);
 
     // Apply move to subsequent level
@@ -654,6 +665,10 @@ function toJSON(a) {
                 a.replace(/^(.*?)(,|\n|$)([\S\s]*)/, function (s1, s2, s3, s4) { b = s2;
                     a = s4; });
                 return Number(b);
+            case "character":
+                a.replace(/^(.*?)(,|\n|$)([\S\s]*)/, function (s1, s2, s3, s4) { b = s2;
+                    a = s4; });
+                return up(Array.from(b)[0]);
             case "string":
                 a.replace(/^(.*?)(,|\n|$)([\S\s]*)/, function (s1, s2, s3, s4) { b = s2;
                     a = s4; });
@@ -752,7 +767,7 @@ function restoreMoves() {
         var self = this;
         Object.keys(DATA[level].moves).forEach(function (id) {
             var cname = MOVES[IMOVE[id]].name,
-                poses = _.map((DATA[level].moves[id].match(/../g) || []), function (poss) { return parseInt(poss[0], 18) * 15 + parseInt(poss[1], 18); });
+                poses = _.map((DATA[level].moves[id].match(/../g) || []), function (poss) { return parseInt(poss[0], 16) * 15 + parseInt(poss[1], 16); });
             for (var n = 0; n < poses.length; n ++) {
                 poss = poses[n];
                 $(self).find("td")[poss].className = cname;
@@ -789,7 +804,7 @@ function restoreCustom() {
     if (!DATA.custom) return;
     for (var moves in DATA.custom) {
         var movename = DATA.custom[moves].name;
-        MOVES[SMOVE[movename]] = DATA.custom[moves];
+        Object.assign(MOVES[SMOVE[movename]], DATA.custom[moves]);
         style.sheet.deleteRule(SMOVE[movename]);
         style.sheet.insertRule(makeRule(MOVES[SMOVE[movename]]), SMOVE[movename]); //Reapply css
         document.styleSheets[1] = style;

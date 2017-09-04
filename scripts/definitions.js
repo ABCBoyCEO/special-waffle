@@ -933,7 +933,7 @@ MOVES = [{
    "cat": "custom",
    "name": "custom1",
    "long": "z]",
-   "text": "Custom action 1 (Double Click Menu Icon to Edit)",
+   "text": "Custom spell 1 (Double Click Menu Icon to Edit)",
    "color": [227,25,25],
    "symbol1": "1"
  }, {
@@ -941,7 +941,7 @@ MOVES = [{
    "cat": "custom",
    "name": "custom2",
    "long": "z]",
-   "text": "Custom action 2 (Double Click Menu Icon to Edit)",
+   "text": "Custom spell 2 (Double Click Menu Icon to Edit)",
    "color": [227,126,25],
    "symbol1": "2"
  }, {
@@ -949,7 +949,7 @@ MOVES = [{
    "cat": "custom",
    "name": "custom3",
    "long": "z]",
-   "text": "Custom action 3 (Double Click Menu Icon to Edit)",
+   "text": "Custom spell 3 (Double Click Menu Icon to Edit)",
    "color": [227,227,25],
    "symbol1": "3"
  }, {
@@ -957,7 +957,7 @@ MOVES = [{
    "cat": "custom",
    "name": "custom4",
    "long": "z]",
-   "text": "Custom action 4 (Double Click Menu Icon to Edit)",
+   "text": "Custom spell 4 (Double Click Menu Icon to Edit)",
    "color": [126,227,25],
    "symbol1": "4"
  }, {
@@ -965,7 +965,7 @@ MOVES = [{
    "cat": "custom",
    "name": "custom5",
    "long": "z]",
-   "text": "Custom action 5 (Double Click Menu Icon to Edit)",
+   "text": "Custom spell 5 (Double Click Menu Icon to Edit)",
    "color": [25,227,25],
    "symbol1": "5"
  }, {
@@ -973,7 +973,7 @@ MOVES = [{
    "cat": "custom",
    "name": "custom6",
    "long": "z]",
-   "text": "Custom action 6 (Double Click Menu Icon to Edit)",
+   "text": "Custom spell 6 (Double Click Menu Icon to Edit)",
    "color": [25,227,126],
    "symbol1": "6"
  }, {
@@ -981,7 +981,7 @@ MOVES = [{
    "cat": "custom",
    "name": "custom7",
    "long": "z]",
-   "text": "Custom action 7 (Double Click Menu Icon to Edit)",
+   "text": "Custom spell 7 (Double Click Menu Icon to Edit)",
    "color": [25,227,227],
    "symbol1": "7"
  }, {
@@ -989,7 +989,7 @@ MOVES = [{
    "cat": "custom",
    "name": "custom8",
    "long": "z]",
-   "text": "Custom action 8 (Double Click Menu Icon to Edit)",
+   "text": "Custom spell 8 (Double Click Menu Icon to Edit)",
    "color": [25,126,227],
    "symbol1": "8"
  }];
@@ -1047,11 +1047,13 @@ var SMOVE = {}, //Lookup key by move name
     IMOVE = [], //Lookup key by move id
     SLEVEL = [];//Lookup key by level id
 
-_.forEach(MOVES, function(m, ix) {
-    SMOVE[m.name] = ix;
-    IMOVE[m.id] = ix;
-});
+function makeLookup () {
+    _.forEach(MOVES, function(m, ix) {
+        SMOVE[m.name] = ix;
+        IMOVE[m.id] = ix;
+    });
 
-_.forEach(LEVELS, function(m, ix) {
-    SLEVEL[m] = ix;
-});
+    _.forEach(LEVELS, function(m, ix) {
+        SLEVEL[m] = ix;
+    });
+}

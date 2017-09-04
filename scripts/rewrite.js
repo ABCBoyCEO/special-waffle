@@ -1,7 +1,9 @@
 var mysvg;
+
 function updateSVG (level) {
   mysvg = document.getElementById("svg" + level);
 }
+
 function makeSVGTag(tagName, properties) {
   var keys = Object.keys(properties);
   var ret = "<" + tagName;
@@ -191,6 +193,7 @@ $(".tile").on("contextmenu", function () {
 $(".tile[data-index=112]").on("dblclick", function (e) {
   e.preventDefault();
   for (var l = this.dataset.level; l < 4; l ++) {
+    DATA[LEVELS[l]].move = DATA[LEVELS[l]] || "";
     setDisplay(LEVELS[l], MOVES[IMOVE[config.id]].name);
   }
 });
