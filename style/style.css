@@ -89,6 +89,7 @@ li {
 .hint {
   position: absolute;
   background: rgba(255, 255, 255, 1) none repeat scroll 0% 0%;
+  font-size: smaller;
   margin: 60px 10px 10px;
   width: 80%;
   height: 140px;
