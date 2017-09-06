@@ -202,3 +202,5 @@ $(document).on("mouseup dragend", function () {
   mouse.down = -1;
   mouse.mode = "add";
 });
+
+if ($("#code").val()) validate($("#code").val());

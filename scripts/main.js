@@ -1,4 +1,8 @@
 var CUSTOM = 0;
+//Declare functions so they can be used without definition
+function updateSVG () {}
+function getSpell () {}
+function setSpellOnBoard () {}
 if (window.location.search && URLSearchParams) {
     var qS = new URLSearchParams(window.location.search);
     if (qS.has("q")) $("#code").val(qS.get("q"));
@@ -761,19 +765,28 @@ function restoreDisplay() {
 }
 
 function restoreMoves() {
-    $("td").each(function() { this.className = this.className == "piece" ? "piece" : ""; });
-    $("section").each(function() {
-        var level = this.id;
-        var self = this;
-        Object.keys(DATA[level].moves).forEach(function (id) {
-            var cname = MOVES[IMOVE[id]].name,
-                poses = _.map((DATA[level].moves[id].match(/../g) || []), function (poss) { return parseInt(poss[0], 16) * 15 + parseInt(poss[1], 16); });
-            for (var n = 0; n < poses.length; n ++) {
-                poss = poses[n];
-                $(self).find("td")[poss].className = cname;
-            }
-        });
-    });
+    for (var l = 0; l < 4; l ++) {
+      updateSVG(l);
+      for (var i = 0; i < 225; i ++) {
+        if (getSpell(i).dataset) {
+          getSpell(i).remove();
+        }
+      }
+      var curMoves = DATA[LEVELS[l]].moves;
+      var impList = {};
+      var obKeys = Object.keys(curMoves);
+      for (var i = 0; i < obKeys.length; i ++) {
+        impList[IMOVE[obKeys[i]]] = curMoves[obKeys[i]].match(/../g) || [];
+      }
+      obKeys = Object.keys(impList);
+      for (var i = 0; i < obKeys.length; i ++) {
+        var coords = impList[obKeys[i]];
+        loadMove(MOVES[obKeys[i]]);
+        for (var j = 0; j < impList[obKeys[i]].length; j ++) {
+          setSpellOnBoard(parseInt(impList[obKeys[i]][j], 15));
+        }
+      }
+    }
 }
 
 function restoreCost() {
@@ -811,6 +824,3 @@ function restoreCustom() {
         $(".moves ." + movename).attr("data-description", MOVES[SMOVE[movename]].text);
     }
 }
-
-if ($("#code").val()) validate($("#code").val());
-//Placed at the final so that everything loads properly before stuffs are loaded.;
