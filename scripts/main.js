@@ -312,8 +312,9 @@ function parseText(text, i) {
 
 function cleanseText(text) {
   //This line has been fixed, this task is not as easy as I thought but still kinda easy
+  console.log(text);
   if (text.match(/<\/?div>/)) {
-    text = text.replace(/<\/div><div>/g, "\n").replace(/<div><br>/g, "").replace(/<\/div>/g, "").replace(/<br>/g, "");
+    text = text.replace(/<div><br><\/div>/g, "\n").replace(/<div><\/div>/g, "\n").replace(/<div>(?=[^<]+<\/div>)/g, "\n").replace(/<\/?div>/g, "").replace(/<br>/g, "");
   } else {
     text = text.replace(/<br>/g, "\n");
   }
