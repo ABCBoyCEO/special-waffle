@@ -289,16 +289,19 @@ function appendPassive(text) {
 
 function setPassive(text, level) {
     var old = $("#" + level + " .passives").attr("data-raw");
+    var oldhtml = $("#" + level + " .passives").html();
     text = cleanseText(text);
     $("#" + level + " .passives").attr("data-description", parseText(text, level)).attr("data-raw", text);
     DATA[level].passives = text;
-    if (level != curPASSIVE)
-        $("#" + level + " .passives").text(DATA[level].passives);
-    if ((level = nextLevel(level)) && old == $("#" + level + " .passives").attr("data-raw"))
+    //if (level != curPASSIVE)
+    //    $("#" + level + " .passives").text(DATA[level].passives);
+    if ((level = nextLevel(level)) && old == $("#" + level + " .passives").attr("data-raw")){
+        $("#" + level + " .passives").html(oldhtml);
         setPassive(text, level);
+    }
 }
 $("div.passives").keyup(function() {
-    if (this.innerHTML == "<br>") this.innerHTML = "";
+    if (cleanseText(this.innerHTML) == "") this.innerHTML = "";
     setPassive(this.innerHTML, curPASSIVE);
 });
 
@@ -311,13 +314,9 @@ function parseText(text, i) {
 }
 
 function cleanseText(text) {
-  //This line has been fixed, this task is not as easy as I thought but still kinda easy
-  if (text.match(/<\/?div>/)) {
-    text = text.replace(/<div><br><\/div>/g, "\n").replace(/<div><\/div>/g, "\n").replace(/<div>(?=[^<]+<\/div>)/g, "\n").replace(/<\/?div>/g, "").replace(/<br>/g, "");
-  } else {
-    text = text.replace(/<br>/g, "\n");
-  }
-  return text;
+    text = text.replace(/^(<div[>]*?>)+|(<br[>]*?>)?(<\/div>)+$/g,"");
+    text = text.replace(/(?=(<br[>]*?>)|(<\/div>)+|(<div[>]*?>)+)(<br[>]*?>)?(<\/div>)*(<div[>]*?>)*/g,"\n");
+    return text;
 }
 
 // Piece data to be saved/restored
