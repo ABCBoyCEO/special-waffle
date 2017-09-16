@@ -148,7 +148,7 @@ td.piece::before {
   border: 2px solid black;
   background: black none repeat scroll 0% 0%;
 }
-section .moves li {
+section .moves svg {
   display: none;
 }
 @supports(border-image-slice: 25%){
@@ -180,6 +180,10 @@ li::before,
   padding-top: 5px;
   cursor: default;
   z-index: 2;
+}
+.moves svg {
+	width: 22px;
+	height: 22px;
 }
 .moves li::before{
   transform: scale(1.2, 1.2);

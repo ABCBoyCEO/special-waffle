@@ -1,8 +1,28 @@
 var CUSTOM = 0;
+var mysvg;
 //Declare functions so they can be used without definition
 function updateSVG () {}
 function getSpell () {}
 function setSpellOnBoard () {}
+function makeSVGTag(tagName, properties) {
+  var keys = Object.keys(properties);
+  var ret = "<" + tagName;
+  for (var i = 0; i < keys.length; i++) {
+    ret += " " + keys[i] + '="' + properties[keys[i]] + '"';
+  }
+  ret += "/>";
+  return ret;
+}
+
+function makeSVGTagContent(tagName, properties, content) {
+  var keys = Object.keys(properties);
+  var ret = "<" + tagName;
+  for (var i = 0; i < keys.length; i++) {
+    ret += " " + keys[i] + '="' + properties[keys[i]] + '"';
+  }
+  ret += ">" + content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</" + tagName + ">";
+  return ret;
+}
 if (window.location.search && URLSearchParams) {
     var qS = new URLSearchParams(window.location.search);
     if (qS.has("q")) $("#code").val(qS.get("q"));
@@ -75,7 +95,22 @@ for (var i = 0; i < MOVES.length; i++) {
     var className = MOVES[i].name;
     if (className.startsWith("custom")) className += " custom";
     if (MOVES[i].hide) className += " hide";
-    $(".moves").append("<li class=\"" + className + "\" data-description=\"" + MOVES[i].text + "\"></li>\n");
+    $(".moves").append("<svg class=\"" + className + " unfinished" + "\" data-description=\"" + MOVES[i].text + "\"></svg>\n");
+    $(".moves svg.unfinished").each(function () {
+      mysvg = this;
+      mysvg.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
+        height: 22,
+        width: 22,
+        stroke: config.color1,
+        "stroke-width": 2,
+        x: Number(x) + 4,
+        y: Number(y) + 4,
+        fill: config.color2,
+        class: "spell",
+        "data-index": i,
+        "data-id": config.id
+      }));
+    });
     //$("#moves").append("<li class=\""+className+"\">"+MOVES[i].text+"</li>\n");
 }
 // $(".moves .custom").prop("contenteditable", true); //let's not :v
@@ -389,11 +424,11 @@ function setMove(level, cell, cls) {
 
 function setDisplay(level, cls) {
     DATA[level].moves[MOVES[SMOVE[cls]].id] = DATA[level].moves[MOVES[SMOVE[cls]].id] || "";
-    $("#" + level + " .moves li." + cls).css("display", "block");
+    $("#" + level + " .moves svg." + cls).css("display", "block");
 }
 
 function removeDisplay(level, cls) {
-    $("#" + level + " .moves li." + cls).css("display", "none");
+    $("#" + level + " .moves svg." + cls).css("display", "none");
 }
 
 function nextLevel(level) {
@@ -758,7 +793,11 @@ function restoreImage() {
 }
 
 function restoreDisplay() {
-    $("section .moves li").css("display", "none");
+    for (var l = 0; l < 4; l ++) {
+      for (var i = 0; i < Object.keys(SMOVE).length; i ++) {
+        removeDisplay(LEVELS[l], Object.keys(SMOVE)[i]);
+      }
+    }
     $("section").each(function() {
         var level = this.id;
         _.forEach(Object.keys(DATA[level].moves), function (cls) {
