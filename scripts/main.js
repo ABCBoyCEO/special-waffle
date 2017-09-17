@@ -262,10 +262,10 @@ function cusLoadEdit(moves) {
             if (this.checkValidity()) $(".giant").text(sy1.val()+sy2.val());
         }
         if ($(this)[0].id == "unicode") {
-            if (this.checkValidity()) $("#uniprev").val(String.fromCodePoint(parseInt($(this).val(), 16)));
+            if (this.checkValidity() && this.value) $("#uniprev").val(String.fromCodePoint(parseInt($(this).val(), 16)));
         }
     });
-    $(".cusmodal .moves li").click(function() { cusLoadCustom(this.classList[0]); });
+    $(".cusmodal .moves svg").click(function() { cusLoadCustom(this.classList[0]); });
     $(".cusmodal #menuclose").one("click", function() {
         var jsn = {
             name: moves,
@@ -279,7 +279,7 @@ function cusLoadEdit(moves) {
             symbol2: sy2.val(),
         };
         $(".cusmodal input").off("click keyup");
-        $(".cusmodal .moves li").off("click"); //prevent overloading
+        $(".cusmodal .moves svg").off("click"); //prevent overloading
         $(".cusmodal #uniprev").off("click");
         //update everything
         DATA.custom = DATA.custom || {}; //create custom if it doesn't exist
@@ -292,6 +292,59 @@ function cusLoadEdit(moves) {
         //Hide actual menu
         $(".modalwrapper").hide();
         setAction(moves); //to actually use it
+        for (var l = 0; l < 4; l ++) {
+          var curLev = LEVELS[l];
+          var isDisplay = /inline/.test($("#" + curLev + " svg." + moves)[0].getAttribute("style"));
+          if (isDisplay) {
+            removeDisplay(curLev, moves);
+          }
+          var svgEdit = $("#" + curLev + " svg." + moves)[0];
+          $("svg." + moves).addClass("unfinished");
+          var removals = svgEdit.children;
+          var rlength = removals.length;
+          for (var r = 0; r < rlength; r ++) {
+            removals[0].remove();
+          }
+          if (isDisplay) {
+            setDisplay(curLev, moves);
+          }
+        }
+        $(".moves svg.unfinished").each(function () {
+          loadMove(MOVES[SMOVE[moves]]);
+          if (config.color1 && config.color2) {
+            this.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
+              height: 10,
+              width: 10,
+              stroke: config.color1,
+              "stroke-width": 2,
+              x: 1,
+              y: 1,
+              fill: config.color2,
+              transform: "scale(1.2 1.2)"
+            }));
+          }
+          if (config.symbol1 && config.color3) {
+            this.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+              x: 2,
+              y: 15,
+              "font-family": "monospac",
+              "font-size": 21,
+              stroke: "none",
+              fill: config.color3
+            }, config.symbol1));
+          }
+          if (config.symbol2 && config.color4) {
+            this.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+              x: 2,
+              y: 15,
+              "font-family": "monospac",
+              "font-size": 21,
+              stroke: "none",
+              fill: config.color4
+            }, config.symbol2));
+          }
+          $(this).removeClass("unfinished");
+        });
     });
 }
 $("#hidebutton").click(function(e) {
@@ -460,6 +513,10 @@ function setDisplay(level, cls) {
 
 function removeDisplay(level, cls) {
     $("#" + level + " .moves svg." + cls).css("display", "none");
+    var nc = $("#" + level + " .moves svg." + cls)[0].nextSibling;
+    if(nc.tagName.toLowerCase() == "p") {
+      nc.remove();
+    }
 }
 
 function nextLevel(level) {
@@ -782,7 +839,6 @@ function toJSON(a) {
 
 function validate(source) {
     try { //Tests:
-        console.log(source);
         DATA = toJSON(source); //Syntax test
         restore();
     } catch (e) {
