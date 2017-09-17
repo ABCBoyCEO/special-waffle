@@ -105,16 +105,38 @@ for (var i = 0; i < MOVES.length; i++) {
     }, ""));
     $(".moves svg.unfinished").each(function () {
       loadMove(MOVES[i]);
-      this.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
-        height: 10,
-        width: 10,
-        stroke: config.color1,
-        "stroke-width": 2,
-        x: 1,
-        y: 1,
-        fill: config.color2,
-        transform: "scale(1.2 1.2)"
-      }));
+      if (config.color1 && config.color2) {
+        this.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
+          height: 10,
+          width: 10,
+          stroke: config.color1,
+          "stroke-width": 2,
+          x: 1,
+          y: 1,
+          fill: config.color2,
+          transform: "scale(1.2 1.2)"
+        }));
+      }
+      if (config.symbol1 && config.color3) {
+        this.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+          x: 2,
+          y: 15,
+          "font-family": "monospac",
+          "font-size": 21,
+          stroke: "none",
+          fill: config.color3
+        }, config.symbol1));
+      }
+      if (config.symbol2 && config.color4) {
+        this.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+          x: 2,
+          y: 15,
+          "font-family": "monospac",
+          "font-size": 21,
+          stroke: "none",
+          fill: config.color4
+        }, config.symbol2));
+      }
       $(this).removeClass("unfinished");
     });
     //$("#moves").append("<li class=\""+className+"\">"+MOVES[i].text+"</li>\n");
@@ -430,6 +452,10 @@ function setMove(level, cell, cls) {
 function setDisplay(level, cls) {
     DATA[level].moves[MOVES[SMOVE[cls]].id] = DATA[level].moves[MOVES[SMOVE[cls]].id] || "";
     $("#" + level + " .moves svg." + cls).css("display", "inline");
+    var svgMove = $("#" + level + " .moves svg." + cls)[0];
+    if (svgMove.nextSibling.tagName.toLowerCase() == "svg") {
+      svgMove.insertAdjacentHTML("afterend", "<p>" + svgMove.dataset.description + "</p>");
+    }
 }
 
 function removeDisplay(level, cls) {

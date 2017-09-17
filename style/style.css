@@ -296,18 +296,18 @@ ul {
   -moz-column-fill:auto;
   padding: 5px 0;
 }
-.cost + div > ul li::before{
-  position:absolute;
-  margin-top:4px;
-}
 .passives::before,
 #passives li::before{
   position:absolute;
   margin-top:4px;
   margin-left: -22px;
 }
-.cost + div > ul p,
-.passives, #passives svg{
+.cost + div > ul p{
+  margin-left: 3px;
+  line-height: 12px;
+  min-height: 24px;
+}
+.passives, #passives li{
   margin-left: 30px;
   display: block;
   line-height: 12px;
@@ -318,7 +318,15 @@ div.passives{
   margin-bottom: 12px;
   margin-right: 16px;
 }
-.cost + div > ul p,
+.cost + div > ul p {
+  overflow-wrap: break-word; 
+  font-size: 12px;
+  font-family: Consolis, monospac;
+  font-weight: bold;
+  letter-spacing: -0.5px;
+  line-height: 16px;
+  white-space: pre-wrap;
+}
 .info,
 .screen.passives, div.passives::after, div.passives:focus, #passives li,
 #action li::after{
@@ -330,6 +338,12 @@ div.passives{
   letter-spacing: -0.5px;
   line-height: 16px;
   white-space: pre-wrap;
+}
+.cost + div > ul p {
+	margin-left: 30px;
+	position: relative;
+	bottom: 40px;
+	margin-bottom: -40px;
 }
 .screen.passives::after, div.passives, div.passives:focus::after{
   font-size:0;
@@ -396,7 +410,7 @@ canvas {
   position: absolute;
   font-size: smaller;
   font-family: Myriad, sans;
-  bottom: 2px;
+  bottom: 3px;
   right: 5px;
 }
 body[mode="active"] nav > a[mode="active"],
