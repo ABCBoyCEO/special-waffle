@@ -1,27 +1,5 @@
-var mysvg;
-
 function updateSVG (level) {
   mysvg = document.getElementById("svg" + level);
-}
-
-function makeSVGTag(tagName, properties) {
-  var keys = Object.keys(properties);
-  var ret = "<" + tagName;
-  for (var i = 0; i < keys.length; i++) {
-    ret += " " + keys[i] + '="' + properties[keys[i]] + '"';
-  }
-  ret += "/>";
-  return ret;
-}
-
-function makeSVGTagContent(tagName, properties, content) {
-  var keys = Object.keys(properties);
-  var ret = "<" + tagName;
-  for (var i = 0; i < keys.length; i++) {
-    ret += " " + keys[i] + '="' + properties[keys[i]] + '"';
-  }
-  ret += ">" + content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</" + tagName + ">";
-  return ret;
 }
 
 function setSpellOnBoard(i) {
@@ -156,8 +134,8 @@ for (var ext = 0; ext < 4; ext ++) {
   }));
 	
   mysvg.insertAdjacentHTML("beforeend", makeSVGTag("circle", {
-    cx: mysvg.getAttribute("width") / 2 - 1,
-    cy: mysvg.getAttribute("height") / 2 + 1,
+    cx: mysvg.getAttribute("width") / 2,
+    cy: mysvg.getAttribute("height") / 2,
     r: 6,
     class: "piece",
     "data-index": 112

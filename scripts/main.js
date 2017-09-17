@@ -1,8 +1,30 @@
 var CUSTOM = 0;
+var mysvg;
+var config = {};
 //Declare functions so they can be used without definition
 function updateSVG () {}
 function getSpell () {}
 function setSpellOnBoard () {}
+function loadMove() {}
+function makeSVGTag(tagName, properties) {
+  var keys = Object.keys(properties);
+  var ret = "<" + tagName;
+  for (var i = 0; i < keys.length; i++) {
+    ret += " " + keys[i] + '="' + properties[keys[i]] + '"';
+  }
+  ret += "/>";
+  return ret;
+}
+
+function makeSVGTagContent(tagName, properties, content) {
+  var keys = Object.keys(properties);
+  var ret = "<" + tagName;
+  for (var i = 0; i < keys.length; i++) {
+    ret += " " + keys[i] + '="' + properties[keys[i]] + '"';
+  }
+  ret += ">" + content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</" + tagName + ">";
+  return ret;
+}
 if (window.location.search && URLSearchParams) {
     var qS = new URLSearchParams(window.location.search);
     if (qS.has("q")) $("#code").val(qS.get("q"));
@@ -75,7 +97,48 @@ for (var i = 0; i < MOVES.length; i++) {
     var className = MOVES[i].name;
     if (className.startsWith("custom")) className += " custom";
     if (MOVES[i].hide) className += " hide";
-    $(".moves").append("<li class=\"" + className + "\" data-description=\"" + MOVES[i].text + "\"></li>\n");
+    $(".moves").append(makeSVGTagContent("svg", {
+      class: className + " unfinished",
+      "data-description": MOVES[i].text,
+      width: 15,
+      height: 15
+    }, ""));
+    $(".moves svg.unfinished").each(function () {
+      loadMove(MOVES[i]);
+      if (config.color1 && config.color2) {
+        this.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
+          height: 10,
+          width: 10,
+          stroke: config.color1,
+          "stroke-width": 2,
+          x: 1,
+          y: 1,
+          fill: config.color2,
+          transform: "scale(1.2 1.2)"
+        }));
+      }
+      if (config.symbol1 && config.color3) {
+        this.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+          x: 2,
+          y: 15,
+          "font-family": "monospac",
+          "font-size": 21,
+          stroke: "none",
+          fill: config.color3
+        }, config.symbol1));
+      }
+      if (config.symbol2 && config.color4) {
+        this.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+          x: 2,
+          y: 15,
+          "font-family": "monospac",
+          "font-size": 21,
+          stroke: "none",
+          fill: config.color4
+        }, config.symbol2));
+      }
+      $(this).removeClass("unfinished");
+    });
     //$("#moves").append("<li class=\""+className+"\">"+MOVES[i].text+"</li>\n");
 }
 // $(".moves .custom").prop("contenteditable", true); //let's not :v
@@ -87,7 +150,6 @@ $("#shactive").click(function() {
 
 // Current tool
 var ACTION;
-var config = {};
 
 function loadMove(move, noShow) {
   if (!noShow) {
@@ -115,7 +177,7 @@ function setAction(action) {
     ACTION = action;
     loadMove(MOVES[SMOVE[action]]);
 }
-$("#action li").click(function() {
+$("#action svg").click(function() {
     if (ACTION == this.classList[0]) return;
     setAction(this.classList[0]); // ensure we get customN not custom
 });
@@ -389,11 +451,15 @@ function setMove(level, cell, cls) {
 
 function setDisplay(level, cls) {
     DATA[level].moves[MOVES[SMOVE[cls]].id] = DATA[level].moves[MOVES[SMOVE[cls]].id] || "";
-    $("#" + level + " .moves li." + cls).css("display", "block");
+    $("#" + level + " .moves svg." + cls).css("display", "inline");
+    var svgMove = $("#" + level + " .moves svg." + cls)[0];
+    if (svgMove.nextSibling.tagName.toLowerCase() == "svg") {
+      svgMove.insertAdjacentHTML("afterend", "<p>" + svgMove.dataset.description + "</p>");
+    }
 }
 
 function removeDisplay(level, cls) {
-    $("#" + level + " .moves li." + cls).css("display", "none");
+    $("#" + level + " .moves svg." + cls).css("display", "none");
 }
 
 function nextLevel(level) {
@@ -758,7 +824,11 @@ function restoreImage() {
 }
 
 function restoreDisplay() {
-    $("section .moves li").css("display", "none");
+    for (var l = 0; l < 4; l ++) {
+      for (var i = 0; i < Object.keys(SMOVE).length; i ++) {
+        removeDisplay(LEVELS[l], Object.keys(SMOVE)[i]);
+      }
+    }
     $("section").each(function() {
         var level = this.id;
         _.forEach(Object.keys(DATA[level].moves), function (cls) {
