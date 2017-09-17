@@ -184,7 +184,7 @@ $("#action svg").click(function() {
 setAction("moveattack");
 
 //Doubleclick custom to edit
-$("#action li.custom").on("dblclick taphold", function() { cusLoadEdit(this.classList[0]); });
+$("#action svg.custom").on("dblclick taphold", function() { cusLoadEdit(this.classList[0]); });
 
 function cusLoadEdit(moves) {
     //declare every parameter because lolfunctions
