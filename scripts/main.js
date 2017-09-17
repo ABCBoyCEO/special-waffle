@@ -1,9 +1,11 @@
 var CUSTOM = 0;
 var mysvg;
+var config = {};
 //Declare functions so they can be used without definition
 function updateSVG () {}
 function getSpell () {}
 function setSpellOnBoard () {}
+function loadMove() {}
 function makeSVGTag(tagName, properties) {
   var keys = Object.keys(properties);
   var ret = "<" + tagName;
@@ -95,21 +97,25 @@ for (var i = 0; i < MOVES.length; i++) {
     var className = MOVES[i].name;
     if (className.startsWith("custom")) className += " custom";
     if (MOVES[i].hide) className += " hide";
-    $(".moves").append("<svg class=\"" + className + " unfinished" + "\" data-description=\"" + MOVES[i].text + "\"></svg>\n");
+    $(".moves").append(makeSVGTagContent("svg", {
+      class: className + " unfinished",
+      "data-description": MOVES[i].text,
+      width: 15,
+      height: 15
+    }, ""));
     $(".moves svg.unfinished").each(function () {
-      mysvg = this;
-      mysvg.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
-        height: 22,
-        width: 22,
+      loadMove(MOVES[i]);
+      this.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
+        height: 10,
+        width: 10,
         stroke: config.color1,
         "stroke-width": 2,
-        x: Number(x) + 4,
-        y: Number(y) + 4,
+        x: 1,
+        y: 1,
         fill: config.color2,
-        class: "spell",
-        "data-index": i,
-        "data-id": config.id
+        transform: "scale(1.2 1.2)"
       }));
+      $(this).removeClass("unfinished");
     });
     //$("#moves").append("<li class=\""+className+"\">"+MOVES[i].text+"</li>\n");
 }
@@ -122,7 +128,6 @@ $("#shactive").click(function() {
 
 // Current tool
 var ACTION;
-var config = {};
 
 function loadMove(move, noShow) {
   if (!noShow) {
@@ -150,7 +155,7 @@ function setAction(action) {
     ACTION = action;
     loadMove(MOVES[SMOVE[action]]);
 }
-$("#action li").click(function() {
+$("#action svg").click(function() {
     if (ACTION == this.classList[0]) return;
     setAction(this.classList[0]); // ensure we get customN not custom
 });
@@ -424,7 +429,7 @@ function setMove(level, cell, cls) {
 
 function setDisplay(level, cls) {
     DATA[level].moves[MOVES[SMOVE[cls]].id] = DATA[level].moves[MOVES[SMOVE[cls]].id] || "";
-    $("#" + level + " .moves svg." + cls).css("display", "block");
+    $("#" + level + " .moves svg." + cls).css("display", "inline");
 }
 
 function removeDisplay(level, cls) {
