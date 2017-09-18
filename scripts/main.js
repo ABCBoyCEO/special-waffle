@@ -192,10 +192,11 @@ function cusLoadEdit(moves) {
     //$(".giant").css("border-color", "rgb(" + c11.val() + "," + c12.val() + "," + c13.val() + ")"); //update c1
     //$(".giant").css("background", "rgb(" + c21.val() + "," + c22.val() + "," + c23.val() + ")"); //update c2
     //$(".giant").css("color", "rgb(" + c31.val() + "," + c32.val() + "," + c33.val() + ")"); //update c3
+    loadMove(elm);
+    updateCustom();
   }
 
-  function updateCustom(moves){
-    loadMove(elm);
+  function updateCustom(){
     $(".giant").html(makeSpellSVG());
   }
   //Load actual menu
@@ -206,26 +207,23 @@ function cusLoadEdit(moves) {
       $(this).val("0");
     }
     if ($(this)[0].id.startsWith("color1")) {
-      $(".giant").css("border-color", "rgb(" + c11.val() + "," + c12.val() + "," + c13.val() + ")"); //update c1
       var cur = parseInt($(this).val(), 10);
       if ($("#colour2")[0].checked) {
         $("#color2" + $(this)[0].id.slice(-1)).val(Math.floor((255 - cur) / 2 + cur));
-        $("#color2" + $(this)[0].id.slice(-1)).keyup();
       }
       if ($("#colour3")[0].checked) {
         $("#color3" + $(this)[0].id.slice(-1)).val(cur);
-        $("#color3" + $(this)[0].id.slice(-1)).keyup();
       }
       if ($("#colour4")[0].checked) {
         $("#color4" + $(this)[0].id.slice(-1)).val(cur);
-        $("#color4" + $(this)[0].id.slice(-1)).keyup();
       }
     }
-    if ($(this)[0].id.startsWith("color2")) {
-      $(".giant").css("background", "rgb(" + c21.val() + "," + c22.val() + "," + c23.val() + ")"); //update c2
-    }
-    if ($(this)[0].id.startsWith("color3")) {
-      $(".giant").css("color", "rgb(" + c31.val() + "," + c32.val() + "," + c33.val() + ")"); //update c3
+    if ($(this)[0].id.startsWith("color")) {
+      config.color1 = "rgb(" + c11.val() + "," + c12.val() + "," + c13.val() + ")"; //update c1
+      config.color2 = "rgb(" + c21.val() + "," + c22.val() + "," + c23.val() + ")"; //update c2
+      config.color3 = "rgb(" + c31.val() + "," + c32.val() + "," + c33.val() + ")"; //update c3
+      config.color4 = "rgb(" + c41.val() + "," + c42.val() + "," + c43.val() + ")"; //update c4
+      updateCustom();
     }
     // todo: rewrite all of these into svg
     if ($(this)[0].id.startsWith("colour")) {
@@ -237,7 +235,11 @@ function cusLoadEdit(moves) {
       }
     }
     if ($(this)[0].id.startsWith("symbol")) {
-      if (this.checkValidity()) $(".giant").text(sy1.val() + sy2.val());
+      if (this.checkValidity()) {
+        config.symbol1 = sy1.val();
+        config.symbol2 = sy2.val();
+        updateCustom();
+      }
     }
     if ($(this)[0].id == "unicode") {
       if (this.checkValidity()) $("#uniprev").val(String.fromCodePoint(parseInt($(this).val(), 16)));
