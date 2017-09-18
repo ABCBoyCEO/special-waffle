@@ -417,7 +417,7 @@ function setPassive(text, level) {
 }
 $("div.passives").keyup(function() {
     if (cleanseText(this.innerHTML) == "") this.innerHTML = "";
-    setPassive(this.innerHTML, curPASSIVE);
+    setPassive(this.innerText, curPASSIVE);
 });
 
 function parseText(text, i) {
