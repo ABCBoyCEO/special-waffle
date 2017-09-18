@@ -242,7 +242,7 @@ function cusLoadEdit(moves) {
       }
     }
     if ($(this)[0].id == "unicode") {
-      if (this.checkValidity()) $("#uniprev").val(String.fromCodePoint(parseInt($(this).val(), 16)));
+      if (this.checkValidity() && this.value) $("#uniprev").val(String.fromCodePoint(parseInt($(this).val(), 16)));
     }
   });
   $(".cusmodal .moves svg").click(function() {
@@ -279,6 +279,14 @@ function cusLoadEdit(moves) {
     //Hide actual menu
     $(".modalwrapper").hide();
     setAction(moves); //to actually use it
+    for (var l = 0; l < 4; l ++) {
+      var curLev = LEVELS[l];
+      var isDisplay = /inline/.test($("#" + curLev + " svg." + moves)[0].getAttribute("style"));
+      if (isDisplay) {
+        removeDisplay(curLev, moves);
+        setDisplay(curLev, moves);
+      }
+    }
   });
 }
 $("#hidebutton").click(function(e) {
@@ -453,6 +461,10 @@ function setDisplay(level, cls) {
 
 function removeDisplay(level, cls) {
   $("#" + level + " .moves svg." + cls).css("display", "none");
+  var nc = $("#" + level + " .moves svg." + cls)[0].nextSibling;
+  if(nc.tagName.toLowerCase() == "p") {
+    nc.remove();
+  }
 }
 
 function nextLevel(level) {
