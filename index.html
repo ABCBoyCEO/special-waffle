@@ -12,8 +12,8 @@
   <script src="scripts/rasterizeHTML.allinone.js"></script>
   <script src="scripts/lodash.js"></script>
   <script src="scripts/definitions.js"></script>
-  <script defer src="scripts/main.js"></script>
   <script defer src="scripts/rewrite.js"></script>
+  <script defer src="scripts/main.js"></script>
 <style type="text/css">
 :root #content > #center > .dose > .dosesingle,
 :root #content > #right > .dose > .dosesingle
@@ -21,6 +21,7 @@
 
 <body mode="active">
   <div id="boards">
+    <svg id="mydefs">
     <div id="style">
       <link rel="stylesheet" href="style/style.css">
     </div>
@@ -166,7 +167,7 @@
   <div class="cusmodal round panel" style="width: 500px; height: 330px;">
 
     <h2>Custom Spell Editor</h2><div class="cusmodalbody">
-      <div class="giant" data-content=""></div>
+      <svg class="giant">
       <div>Border Color: <input id="color11" min="0" max="255" type="number"><input id="color12" min="0" max="255" type="number"><input id="color13" min="0" max="255" type="number">
         <br>
         Fill Color: <input id="color21" min="0" max="255" type="number"><input id="color22" min="0" max="255" type="number"><input id="color23" min="0" max="255" type="number"><input id="colour2" type="checkbox">Unset

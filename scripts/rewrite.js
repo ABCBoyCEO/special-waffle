@@ -1,6 +1,203 @@
+var config = {};
+
 function updateSVG (level) {
   mysvg = document.getElementById("svg" + level);
 }
+
+function makeSpellSVG () {
+  // StackOverflow says this should work
+  var container = document.createElement('div');
+  container.insertAdjacentHTML('beforeend', makeSVGTag("g", {
+    class: "spell-group " + config.name,
+    "data-id": config.id,
+    id: "spell-"+config.name,
+  }));
+  var gTag = container.lastElementChild;
+  if (config.color1 && config.color2) {
+    gTag.insertAdjacentHTML('beforeend', makeSVGTag("rect", {
+      height: 10,
+      width: 10,
+      stroke: config.color1,
+      "stroke-width": 2,
+      x: 1,
+      y: 1,
+      fill: config.color2,
+      class: "spell",
+      "data-id": config.id
+    }));
+  }
+  if (config.color3 && config.symbol1) {
+    gTag.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+      x: 1.5,
+      y: 12,
+      "font-family": "monospac",
+      "font-size": 17,
+      stroke: "none",
+      fill: config.color3,
+      class: "spell-symbol spell-symbol1",
+      "data-id": config.id
+    }, config.symbol1));
+  }
+  if (config.color4 && config.symbol2) {
+    gTag.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
+      x: 1.5,
+      y: 12,
+      "font-family": "monospac",
+      "font-size": 17,
+      stroke: "none",
+      fill: config.color4,
+      class: "spell-symbol spell-symbol2",
+      "data-id": config.id
+    }, config.symbol2));
+  }
+
+  return container.innerHTML;
+}
+
+function preloadSpells() {
+  var mydefs = document.getElementById("mydefs");
+  mydefs.insertAdjacentHTML('beforeend', makeSVGTag("defs", {
+    id: "defs"
+  }));
+  var defs = mydefs.lastElementChild;
+  for (var i = 0; i < MOVES.length; i++) {
+    loadMove(MOVES[i]);
+    defs.insertAdjacentHTML('beforeend', makeSpellSVG(config));
+  }
+}
+
+function initializeBoards() {
+  for (var ext = 0; ext < 4; ext ++) {
+    updateSVG(ext);
+    for (var i = 0; i < 225; i++) {
+      mysvg.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
+        height: 17,
+        width: 17,
+        stroke: "#444",
+        "stroke-width": 1,
+        x: (i % 15) * 17 + 1,
+        y: Math.floor(i / 15) * 17 + 1,
+        fill: i % 2 ? "#ccc" : "#eee",
+        class: "tile",
+        "data-index": i,
+        "data-level": ext,
+        draggable: false,
+        "shape-rendering": "crispEdges"
+      }));
+    }
+    
+    mysvg.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
+      height: 256,
+      width: 256,
+      stroke: "#444",
+      "stroke-width": 2,
+      x: 0,
+      y: 0,
+      fill: "transparent",
+      draggable: false,
+      class: "ignore-mouse",
+      "shape-rendering": "crispEdges"
+    }));
+    
+    mysvg.insertAdjacentHTML("beforeend", makeSVGTag("circle", {
+      cx: mysvg.getAttribute("width") / 2,
+      cy: mysvg.getAttribute("height") / 2,
+      r: 6,
+      class: "piece",
+      "data-index": 112
+    }));
+  }
+
+  // Events moved to here because reasons
+  $(".tile").on("mousedown", function (e) {
+    e.preventDefault();
+    updateSVG(this.dataset.level);
+
+    if (this.dataset.index == 112) return;
+
+    var curMove = getSpell(this.dataset.index);
+    if (curMove.dataset && curMove.dataset.id == config.id) mouse.mode = "remove";
+
+    mouse.down = this.dataset.level;
+    changeSpell(this.dataset.index, this.dataset.level);
+  });
+
+  $(".tile").on("mouseover", function (e) {
+    e.preventDefault();
+    if (mouse.down != this.dataset.level) return;
+    updateSVG(this.dataset.level);
+
+    if (this.dataset.index == 112) return;
+    changeSpell(this.dataset.index, this.dataset.level);
+  });
+
+  $(".tile").on("contextmenu", function () {
+    return false;
+  });
+
+  $(".tile[data-index=112]").on("dblclick", function (e) {
+    e.preventDefault();
+    for (var l = this.dataset.level; l < 4; l ++) {
+      DATA[LEVELS[l]].move = DATA[LEVELS[l]] || "";
+      setDisplay(LEVELS[l], MOVES[IMOVE[config.id]].name);
+    }
+  });
+}
+
+function loadMove(move, noShow) {
+  if (!noShow) {
+    noShow = {};
+  }
+  config.id = move.id;
+  config.name = move.name;
+  if (!noShow.tile) {
+    config.color1 = "rgb(" + createColors(move)[0].join(",") + ")";
+    config.color2 = "rgb(" + createColors(move)[1].join(",") + ")";
+  }
+  if (!noShow.symbol1) {
+    config.color3 = "rgb(" + createColors(move)[2].join(",") + ")";
+    config.symbol1 = move.symbol1 ? move.symbol1 : null;
+  }
+  if (!noShow.symbol2) {
+    config.color4 = "rgb(" + createColors(move)[3].join(",") + ")";
+    config.symbol2 = move.symbol2 ? move.symbol2 : null;
+  }
+}
+
+function makeSVGTag(tagName, properties) {
+  var keys = Object.keys(properties);
+  var ret = "<" + tagName;
+  for (var i = 0; i < keys.length; i++) {
+    ret += " " + keys[i] + '="' + properties[keys[i]] + '"';
+  }
+  ret += "/>";
+  return ret;
+}
+
+function makeSVGTagContent(tagName, properties, content) {
+  var keys = Object.keys(properties);
+  var ret = "<" + tagName;
+  for (var i = 0; i < keys.length; i++) {
+    ret += " " + keys[i] + '="' + properties[keys[i]] + '"';
+  }
+  ret += ">" + content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</" + tagName + ">";
+  return ret;
+}
+
+function setSpellOnBoard(i) {
+  var x = mysvg.children[i].getAttribute("x");
+  var y = mysvg.children[i].getAttribute("y");
+  mysvg.insertAdjacentHTML('beforeend', makeSVGTag("use", {
+    x: +x + 3,
+    y: +y + 3,
+    class: "spell-display",
+    "data-index": i,
+    "data-id": config.id,
+    href: "#spell-" + config.name
+  }));
+}
+
+/* REWRITING!
 
 function setSpellOnBoard(i) {
   var x = mysvg.children[i].getAttribute("x");
@@ -53,6 +250,8 @@ function setSpellOnBoard(i) {
   }
 }
 
+//*/
+
 function changeSpell(i, l) {
   var curMove = getSpell(i);
   var levMoves = DATA[LEVELS[l]].moves;
@@ -100,81 +299,6 @@ function getSpell(index) {
 
   return ret;
 }
-
-for (var ext = 0; ext < 4; ext ++) {
-  updateSVG(ext);
-  for (var i = 0; i < 225; i++) {
-    mysvg.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
-      height: 17,
-      width: 17,
-      stroke: "#444",
-      "stroke-width": 1,
-      x: (i % 15) * 17 + 1,
-      y: Math.floor(i / 15) * 17 + 1,
-      fill: i % 2 ? "#ccc" : "#eee",
-      class: "tile",
-      "data-index": i,
-      "data-level": ext,
-      draggable: false,
-      "shape-rendering": "crispEdges"
-    }));
-  }
-	
-  mysvg.insertAdjacentHTML("beforeend", makeSVGTag("rect", {
-  	height: 256,
-  	width: 256,
-  	stroke: "#444",
-  	"stroke-width": 2,
-  	x: 0,
-  	y: 0,
-  	fill: "transparent",
-  	draggable: false,
-  	class: "ignore-mouse",
-  	"shape-rendering": "crispEdges"
-  }));
-	
-  mysvg.insertAdjacentHTML("beforeend", makeSVGTag("circle", {
-    cx: mysvg.getAttribute("width") / 2,
-    cy: mysvg.getAttribute("height") / 2,
-    r: 6,
-    class: "piece",
-    "data-index": 112
-  }));
-}
-
-$(".tile").on("mousedown", function (e) {
-  e.preventDefault();
-  updateSVG(this.dataset.level);
-
-  if (this.dataset.index == 112) return;
-
-  var curMove = getSpell(this.dataset.index);
-  if (curMove.dataset && curMove.dataset.id == config.id) mouse.mode = "remove";
-
-  mouse.down = this.dataset.level;
-  changeSpell(this.dataset.index, this.dataset.level);
-});
-
-$(".tile").on("mouseover", function (e) {
-  e.preventDefault();
-  updateSVG(this.dataset.level);
-
-  if (mouse.down != this.dataset.level) return;
-  if (this.dataset.index == 112) return;
-  changeSpell(this.dataset.index, this.dataset.level);
-});
-
-$(".tile").on("contextmenu", function () {
-  return false;
-});
-
-$(".tile[data-index=112]").on("dblclick", function (e) {
-  e.preventDefault();
-  for (var l = this.dataset.level; l < 4; l ++) {
-    DATA[LEVELS[l]].move = DATA[LEVELS[l]] || "";
-    setDisplay(LEVELS[l], MOVES[IMOVE[config.id]].name);
-  }
-});
 
 $(document).on("mouseup dragend", function () {
   mouse.down = -1;
