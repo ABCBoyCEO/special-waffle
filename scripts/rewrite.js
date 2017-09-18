@@ -13,7 +13,7 @@ function makeSpellSVG () {
     id: "spell-"+config.name,
   }));
   var gTag = container.lastElementChild;
-  if (config.color1 && config.color2) {
+  if (config.color1 && config.color2 && !config.nobox) {
     gTag.insertAdjacentHTML('beforeend', makeSVGTag("rect", {
       height: 10,
       width: 10,
@@ -26,7 +26,7 @@ function makeSpellSVG () {
       "data-id": config.id
     }));
   }
-  if (config.color3 && config.symbol1) {
+  if (config.color3 && config.symbol1 && !config.noSymbol1) {
     gTag.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
       x: 1.5,
       y: 12,
@@ -38,7 +38,7 @@ function makeSpellSVG () {
       "data-id": config.id
     }, config.symbol1));
   }
-  if (config.color4 && config.symbol2) {
+  if (config.color4 && config.symbol2 && !config.noSymbol2) {
     gTag.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
       x: 1.5,
       y: 12,

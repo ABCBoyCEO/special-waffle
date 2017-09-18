@@ -162,11 +162,9 @@ $("#action svg.custom").on("dblclick taphold", function() {
 
 function cusLoadEdit(moves) {
   //declare every parameter because lolfunctions
-
-  var elm, col, tex, sy1, sy2, c11, c12, c13, c21, c22, c23, c31, c32, c33, c41, c42, c43, cid = MOVES[SMOVE[moves]].id;
+  var elm, col, tex, sy1, sy2, c11, c12, c13, c21, c22, c23, c31, c32, c33, c41, c42, c43, cid = MOVES[SMOVE[moves]].id, nobox;
   //Load every parameters
   cusLoadCustom(moves);
-
   function cusLoadCustom(moves) {
     elm = MOVES[SMOVE[moves]];
     col = createColors(elm);
@@ -188,6 +186,10 @@ function cusLoadEdit(moves) {
     //Update
     $("[type=checkbox]").prop("checked", false); //uncheck boxes
     $(".cusmodal input").prop("disabled", false); //undisable inputs
+    nobox = $("#nobox").prop("checked", elm.nobox);
+    if (elm.nobox) {
+      $("[id^=color1],[id^=color2]").prop("disabled", true);
+    }
     //$(".giant").text(sy1.val() + sy2.val()); //update content
     //$(".giant").css("border-color", "rgb(" + c11.val() + "," + c12.val() + "," + c13.val() + ")"); //update c1
     //$(".giant").css("background", "rgb(" + c21.val() + "," + c22.val() + "," + c23.val() + ")"); //update c2
@@ -203,22 +205,31 @@ function cusLoadEdit(moves) {
   $(".modalwrapper").show();
 
   $(".cusmodal input").bind("mouseup keyup", function() {
-    if ($(this)[0].id.startsWith("color") && $(this).val() === "") {
+    if (this.id == "nobox") {
+      $("[id^=color1],[id^=color2]").prop("disabled", !this.checked);
+      if (!this.checked) {
+        config.nobox = true;
+      } else {
+        config.nobox = false;
+      }
+      updateCustom();
+    }
+    if (this.id.startsWith("color") && $(this).val() === "") {
       $(this).val("0");
     }
-    if ($(this)[0].id.startsWith("color1")) {
+    if (this.id.startsWith("color1")) {
       var cur = parseInt($(this).val(), 10);
       if ($("#colour2")[0].checked) {
-        $("#color2" + $(this)[0].id.slice(-1)).val(Math.floor((255 - cur) / 2 + cur));
+        $("#color2" + this.id.slice(-1)).val(Math.floor((255 - cur) / 2 + cur));
       }
       if ($("#colour3")[0].checked) {
-        $("#color3" + $(this)[0].id.slice(-1)).val(cur);
+        $("#color3" + this.id.slice(-1)).val(cur);
       }
       if ($("#colour4")[0].checked) {
-        $("#color4" + $(this)[0].id.slice(-1)).val(cur);
+        $("#color4" + this.id.slice(-1)).val(cur);
       }
     }
-    if ($(this)[0].id.startsWith("color")) {
+    if (this.id.startsWith("color")) {
       config.color1 = "rgb(" + c11.val() + "," + c12.val() + "," + c13.val() + ")"; //update c1
       config.color2 = "rgb(" + c21.val() + "," + c22.val() + "," + c23.val() + ")"; //update c2
       config.color3 = "rgb(" + c31.val() + "," + c32.val() + "," + c33.val() + ")"; //update c3
@@ -226,22 +237,22 @@ function cusLoadEdit(moves) {
       updateCustom();
     }
     // todo: rewrite all of these into svg
-    if ($(this)[0].id.startsWith("colour")) {
-      $("[id^=color" + $(this)[0].id.slice(-1) + "]").prop("disabled", !this.checked);
+    if (this.id.startsWith("colour")) {
+      $("[id^=color" + this.id.slice(-1) + "]").prop("disabled", !this.checked);
       if (!this.checked) {
         this.checked = true;
         $("[id^=color1]").keyup();
         this.checked = false;
       }
     }
-    if ($(this)[0].id.startsWith("symbol")) {
+    if (this.id.startsWith("symbol")) {
       if (this.checkValidity()) {
         config.symbol1 = sy1.val();
         config.symbol2 = sy2.val();
         updateCustom();
       }
     }
-    if ($(this)[0].id == "unicode") {
+    if (this.id == "unicode") {
       if (this.checkValidity() && this.value) $("#uniprev").val(String.fromCodePoint(parseInt($(this).val(), 16)));
     }
   });
@@ -259,6 +270,7 @@ function cusLoadEdit(moves) {
       color4: [parseInt(c41.val(), 10), parseInt(c42.val(), 10), parseInt(c43.val(), 10)],
       symbol1: sy1.val(),
       symbol2: sy2.val(),
+      nobox: $("#nobox")[0].checked
     };
     $(".cusmodal input").off("click keyup");
     $(".cusmodal .moves li").off("click"); //prevent overloading
@@ -270,7 +282,7 @@ function cusLoadEdit(moves) {
 
     loadMove(MOVES[SMOVE[moves]]);
     document.getElementById("spell-"+moves).remove();
-    document.getElementById("defs").insertAdjacentHTML("beforeend", makeSpellSVG(config));
+    document.getElementById("defs").insertAdjacentHTML("beforeend", makeSpellSVG());
     style.sheet.deleteRule(SMOVE[moves]);
     style.sheet.insertRule(makeRule(MOVES[SMOVE[moves]]), SMOVE[moves]); //Reapply css
 
