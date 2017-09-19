@@ -207,6 +207,9 @@ function cusLoadEdit(moves) {
   $(".cusmodal input").bind("mouseup keyup", function() {
     if (this.id == "nobox") {
       $("[id^=color1],[id^=color2]").prop("disabled", !this.checked);
+      if ($("#colour2")[0].checked && this.checked) {
+        $("[id^=color2]").prop("disabled", true);
+      }
       if (!this.checked) {
         config.nobox = true;
       } else {
@@ -243,6 +246,8 @@ function cusLoadEdit(moves) {
         this.checked = true;
         $("[id^=color1]").keyup();
         this.checked = false;
+      } else if ($("#nobox")[0].checked && this.id == "colour2") {
+        $("[id^=color2]").prop("disabled", true);
       }
     }
     if (this.id.startsWith("symbol")) {
