@@ -1013,3 +1013,13 @@ function restoreCustom() {
     $(".moves ." + movename).attr("data-description", MOVES[SMOVE[movename]].text);
   }
 }
+
+$("#action svg").mouseenter(function (e) {
+  tooltip.style.top = e.pageY + "px";
+  tooltip.style.left = e.pageX + "px";
+  tooltip.style.visibility = "visible";
+  tooltip.innerText = this.dataset.description;
+});
+$("#action svg").mouseleave(function (e) {
+  tooltip.style.visibility = "hidden";
+});
