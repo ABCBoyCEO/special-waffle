@@ -325,6 +325,9 @@ ul {
   line-height: 12px;
   min-height: 24px;
 }
+#passives li {
+	cursor: pointer;
+}
 div.passives{
   margin-left: 40px;
   margin-bottom: 12px;
@@ -550,7 +553,7 @@ text {
   border: 2px solid black;
   background: rgb(255, 255, 255) none repeat scroll 0% 0%;
   white-space: pre-wrap;
-  position: absolute;
+  position: fixed;
   z-index: 10;
   width: 200px;
   visibility: hidden;

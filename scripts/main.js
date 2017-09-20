@@ -1019,12 +1019,12 @@ function restoreCustom() {
   }
 }
 
-$("#action svg").mouseenter(function (e) {
-  tooltip.style.top = e.pageY + "px";
-  tooltip.style.left = e.pageX + "px";
+$("#action svg").mouseenter(function () {
+  tooltip.style.top = this.getBoundingClientRect().top + 20 + "px";
+  tooltip.style.left = this.getBoundingClientRect().left - 5 + "px";
   tooltip.style.visibility = "visible";
   tooltip.innerText = this.dataset.description;
 });
-$("#action svg").mouseleave(function (e) {
+$("#action svg").mouseleave(function () {
   tooltip.style.visibility = "hidden";
 });
