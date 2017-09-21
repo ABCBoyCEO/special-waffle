@@ -1041,3 +1041,4 @@ $("#action svg, .cusmodalbody .moves.gallery svg").mouseenter(function () {
 $("#action svg, .cusmodalbody .moves.gallery svg").mouseleave(function () {
   tooltip.style.visibility = "hidden";
 });
+if ($("#code").val()) validate($("#code").val());
