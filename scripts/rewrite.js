@@ -28,10 +28,11 @@ function makeSpellSVG () {
   }
   if (config.color3 && config.symbol1 && !config.noSymbol1) {
     gTag.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
-      x: 2,
+      x: 6,
       y: 12,
       "font-family": "monospac",
       "font-size": 17,
+      "text-anchor": "middle",
       stroke: "none",
       fill: config.color3,
       class: "spell-symbol spell-symbol1",
@@ -40,10 +41,11 @@ function makeSpellSVG () {
   }
   if (config.color4 && config.symbol2 && !config.noSymbol2) {
     gTag.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
-      x: 2,
+      x: 6,
       y: 12,
       "font-family": "monospac",
       "font-size": 17,
+      "text-anchor": "middle",
       stroke: "none",
       fill: config.color4,
       class: "spell-symbol spell-symbol2",
