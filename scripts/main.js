@@ -1032,14 +1032,12 @@ function restoreCustom() {
   }
 }
 
-$("#action svg").mouseenter(function () {
+$("#action svg, .cusmodalbody .moves.gallery svg").mouseenter(function () {
   tooltip.style.top = this.getBoundingClientRect().top + 20 + "px";
   tooltip.style.left = this.getBoundingClientRect().left - 5 + "px";
   tooltip.style.visibility = "visible";
   tooltip.innerText = this.dataset.description;
 });
-$("#action svg").mouseleave(function () {
+$("#action svg, .cusmodalbody .moves.gallery svg").mouseleave(function () {
   tooltip.style.visibility = "hidden";
 });
-
-if ($("#code").val()) validate($("#code").val());

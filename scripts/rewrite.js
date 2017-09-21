@@ -251,3 +251,4 @@ $(document).on("mouseup dragend", function () {
   mouse.mode = "add";
 });
 
+if ($("#code").val()) validate($("#code").val());

@@ -48,7 +48,7 @@ li {
   align-items: center;
   justify-content: center;
   position: fixed;
-  z-index: 100;
+  z-index: 99;
   top:0;
   left:0;
 }
@@ -554,7 +554,7 @@ text {
   background: rgb(255, 255, 255) none repeat scroll 0% 0%;
   white-space: pre-wrap;
   position: fixed;
-  z-index: 10;
+  z-index: 100;
   width: 200px;
   visibility: hidden;
   margin-left: -182px;
@@ -576,4 +576,8 @@ button, #tooltip, nav a {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.cusmodalbody .moves.gallery svg {
+	cursor: pointer;
 }
