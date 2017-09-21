@@ -197,65 +197,11 @@ function setSpellOnBoard(i) {
   }));
 }
 
-/* REWRITING!
-
-function setSpellOnBoard(i) {
-  var x = mysvg.children[i].getAttribute("x");
-  var y = mysvg.children[i].getAttribute("y");
-  mysvg.insertAdjacentHTML('beforeend', makeSVGTag("g", {
-    class: "spell-display",
-    "data-index": i,
-    "data-id": config.id
-  }));
-  var gTag = mysvg.lastElementChild;
-  if (config.color1 && config.color2) {
-    gTag.insertAdjacentHTML('beforeend', makeSVGTag("rect", {
-      height: 10,
-      width: 10,
-      stroke: config.color1,
-      "stroke-width": 2,
-      x: Number(x) + 4,
-      y: Number(y) + 4,
-      fill: config.color2,
-      class: "spell",
-      "data-index": i,
-      "data-id": config.id
-    }));
-  }
-  if (config.color3 && config.symbol1) {
-    gTag.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
-      x: Number(x) + 5,
-      y: Number(y) + 15,
-      "font-family": "monospac",
-      "font-size": 17,
-      stroke: "none",
-      fill: config.color3,
-      class: "spell-symbol spell-symbol1",
-      "data-index": i,
-      "data-id": config.id
-    }, config.symbol1));
-  }
-  if (config.color4 && config.symbol2) {
-    gTag.insertAdjacentHTML('beforeend', makeSVGTagContent("text", {
-      x: Number(x) + 5,
-      y: Number(y) + 15,
-      "font-family": "monospac",
-      "font-size": 17,
-      stroke: "none",
-      fill: config.color4,
-      class: "spell-symbol spell-symbol2",
-      "data-index": i,
-      "data-id": config.id
-    }, config.symbol2));
-  }
-}
-
-//*/
-
 function changeSpell(i, l) {
   var curMove = getSpell(i);
   var levMoves = DATA[LEVELS[l]].moves;
-  var indexStr = (+i).toString(15);
+  var indexStr = (+i+225).toString(15).slice(1);
+  console.log(indexStr);
   // Delete curMove
   if (curMove.dataset) {
     var id = curMove.dataset.id;

@@ -798,7 +798,8 @@ function toCSV() {
   });
   _.forEach(Object.keys(DATA.custom), function(id) {
     var SDATA = DATA.custom[id];
-    csv += [ep(SDATA.id), ep(SDATA.text), ep(SDATA.content), ep(SDATA.color), ep(SDATA.color2), ep(SDATA.color3)] + "\n";
+    var colorString = [].concat(SDATA.color, SDATA.color2, SDATA.color3, SDATA.color4).map(x => (256+x).toString(16).slice(1));
+    csv += [ep(SDATA.id), ep(SDATA.text), ep(SDATA.content), ep()] + "\n";
   });
   return csv;
 }
