@@ -478,7 +478,7 @@ function setDisplay(level, cls) {
 
 function removeDisplay(level, cls) {
   $("#" + level + " .moves svg." + cls).css("display", "none");
-  var nc = $("#" + level + " .moves svg." + cls)[0].nextSibling;
+  var nc = $("#" + level + " .moves svg." + cls)[0].nextSibling || {tagName: ""};
   if(nc.tagName.toLowerCase() == "p") {
     nc.remove();
   }
