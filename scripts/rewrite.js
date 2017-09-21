@@ -150,6 +150,7 @@ function loadMove(move, noShow) {
   }
   config.id = move.id;
   config.name = move.name;
+  config.nobox = move.nobox || false;
   if (!noShow.tile) {
     config.color1 = "rgb(" + createColors(move)[0].join(",") + ")";
     config.color2 = "rgb(" + createColors(move)[1].join(",") + ")";
@@ -201,7 +202,6 @@ function changeSpell(i, l) {
   var curMove = getSpell(i);
   var levMoves = DATA[LEVELS[l]].moves;
   var indexStr = (+i+225).toString(15).slice(1);
-  console.log(indexStr);
   // Delete curMove
   if (curMove.dataset) {
     var id = curMove.dataset.id;
@@ -251,4 +251,3 @@ $(document).on("mouseup dragend", function () {
   mouse.mode = "add";
 });
 
-if ($("#code").val()) validate($("#code").val());

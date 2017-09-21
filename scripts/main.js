@@ -162,7 +162,7 @@ $("#action svg.custom").on("dblclick taphold", function() {
 
 function cusLoadEdit(moves) {
   //declare every parameter because lolfunctions
-  var elm, col, tex, sy1, sy2, c11, c12, c13, c21, c22, c23, c31, c32, c33, c41, c42, c43, cid = MOVES[SMOVE[moves]].id, nobox;
+  var elm, col, tex, sy1, sy2, box, c11, c12, c13, c21, c22, c23, c31, c32, c33, c41, c42, c43, cid = MOVES[SMOVE[moves]].id, nobox;
   //Load every parameters
   cusLoadCustom(moves);
   function cusLoadCustom(moves) {
@@ -171,6 +171,7 @@ function cusLoadEdit(moves) {
     tex = $("#text").val(elm.text);
     sy1 = $("#symbol1").val(elm.symbol1);
     sy2 = $("#symbol2").val(elm.symbol2);
+    box = $("#nobox").prop("disabled", elm.nobox);
     c11 = $("#color11").val(col[0][0]);
     c12 = $("#color12").val(col[0][1]);
     c13 = $("#color13").val(col[0][2]);
@@ -187,9 +188,8 @@ function cusLoadEdit(moves) {
     $("[type=checkbox]").prop("checked", false); //uncheck boxes
     $(".cusmodal input").prop("disabled", false); //undisable inputs
     nobox = $("#nobox").prop("checked", elm.nobox);
-    if (elm.nobox) {
-      $("[id^=color1],[id^=color2]").prop("disabled", true);
-    }
+
+    $("[id^=color1],[id^=color2]").prop("disabled", elm.nobox);
     //$(".giant").text(sy1.val() + sy2.val()); //update content
     //$(".giant").css("border-color", "rgb(" + c11.val() + "," + c12.val() + "," + c13.val() + ")"); //update c1
     //$(".giant").css("background", "rgb(" + c21.val() + "," + c22.val() + "," + c23.val() + ")"); //update c2
@@ -776,6 +776,8 @@ $("input, button").prop("disabled", false);
 function toCSV() {
   function ep(a) { //The EverythingParser: I'M SO FUCKING TIRED OF THINKING SOLUTIONS
     switch (typeof a) {
+      case "boolean":
+        return a.toString();
       case "number":
         return a + "";
       case "string":
@@ -798,8 +800,8 @@ function toCSV() {
   });
   _.forEach(Object.keys(DATA.custom), function(id) {
     var SDATA = DATA.custom[id];
-    var colorString = [].concat(SDATA.color, SDATA.color2, SDATA.color3, SDATA.color4).map(x => (256+x).toString(16).slice(1));
-    csv += [ep(SDATA.id), ep(SDATA.text), ep(SDATA.content), ep()] + "\n";
+    // var colorString = [].concat(SDATA.color, SDATA.color2, SDATA.color3, SDATA.color4).map(x => (256+x).toString(16).slice(1)).join("");
+    csv += [ep(SDATA.id), ep(SDATA.text), ep(SDATA.symbol1), ep(SDATA.symbol2), ep(SDATA.color), ep(SDATA.color2), ep(SDATA.color3), ep(SDATA.color4), ep(SDATA.nobox)] + "\n";
   });
   return csv;
 }
@@ -808,6 +810,12 @@ function toJSON(a) {
   function pe(foepyt) { //The PatternExtractor: IDK WHAT IM DOING HLEP
     var b;
     switch (foepyt) {
+      case "boolean":
+        a.replace(/^(.*?)(,|\n|$)([\S\s]*)/, function(s1, s2, s3, s4) {
+          b = s2;
+          a = s4;
+        });
+        return b === "true";
       case "number":
         a.replace(/^(.*?)(,|\n|$)([\S\s]*)/, function(s1, s2, s3, s4) {
           b = s2;
@@ -819,7 +827,7 @@ function toJSON(a) {
           b = s2;
           a = s4;
         });
-        return up(Array.from(b)[0]);
+        return up(Array.from(b)[0] || "");
       case "string":
         a.replace(/^(.*?)(,|\n|$)([\S\s]*)/, function(s1, s2, s3, s4) {
           b = s2;
@@ -841,9 +849,7 @@ function toJSON(a) {
           b = [s21, s22, s23];
           a = s4;
         });
-        return _.map(b, function(t) {
-          return +t;
-        });
+        return _.map(b, t => +t);
       case "object":
         a.replace(/^(.*?)(\n|$)([\S\s]*)/, (s1, s2, s3, s4) => {
           b = s2;
@@ -890,10 +896,13 @@ function toJSON(a) {
       id: id,
       name: MOVES[IMOVE[id]].name,
       text: pe("string"),
-      content: pe("string"),
+      symbol1: pe("character"),
+      symbol2: pe("character"),
       color: pe("color"),
       color2: pe("color"),
-      color3: pe("color")
+      color3: pe("color"),
+      color4: pe("color"),
+      nobox: pe("boolean")
     };
   });
   a = tmp;
@@ -906,8 +915,9 @@ function validate(source) {
     DATA = toJSON(source); //Syntax test
     restore();
   } catch (e) {
+    console.log(e);
     document.body.setAttribute("mode", "share");
-    $("#code").val("Error! " + e.message);
+    //$("#code").val("Error! " + e.message);
   }
 }
 //Save and Restore Functions
@@ -922,12 +932,12 @@ function dirty() {
 
 function restore() {
   restoreName();
+  restoreCustom();
   restoreMoves();
   restoreDisplay();
   restoreCost();
   restoreLabels();
   restorePassives();
-  restoreCustom();
   restoreImage();
 }
 
@@ -1013,9 +1023,11 @@ function restoreCustom() {
   for (var moves in DATA.custom) {
     var movename = DATA.custom[moves].name;
     Object.assign(MOVES[SMOVE[movename]], DATA.custom[moves]);
-    style.sheet.deleteRule(SMOVE[movename]);
-    style.sheet.insertRule(makeRule(MOVES[SMOVE[movename]]), SMOVE[movename]); //Reapply css
-    document.styleSheets[1] = style;
+
+    loadMove(DATA.custom[moves]);
+    document.getElementById("spell-"+movename).remove();
+    document.getElementById("defs").insertAdjacentHTML("beforeend", makeSpellSVG());
+
     $(".moves ." + movename).attr("data-description", MOVES[SMOVE[movename]].text);
   }
 }
@@ -1029,3 +1041,5 @@ $("#action svg").mouseenter(function () {
 $("#action svg").mouseleave(function () {
   tooltip.style.visibility = "hidden";
 });
+
+if ($("#code").val()) validate($("#code").val());
